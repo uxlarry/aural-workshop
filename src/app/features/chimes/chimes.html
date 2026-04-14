@@ -1,4 +1,85 @@
-<h1>Chimes</h1>
-<button (click)="playNote('C4')">C4</button>
-<button (click)="playNote('E4')">E4</button>
-<button (click)="playNote('G4')">G4</button>
+<div class="page">
+  <header class="header">
+    <div class="logo">
+      <img class="logomark" [src]="logomark" alt="" />
+      <span class="logo-text">ChimeTune</span>
+    </div>
+    <div class="divider"></div>
+  </header>
+
+  <main class="container">
+    <!-- Chime Selector -->
+    <section class="chime-selector">
+      @for (preset of presets; track preset) {
+      <button
+        class="preset-item"
+        [class.active]="chimeCount() === preset"
+        (click)="selectPreset(preset)"
+      >
+        <img [src]="presetImages[preset]" [alt]="preset + ' chimes'" />
+        <span>{{ preset }} Chimes</span>
+      </button>
+      }
+    </section>
+
+    <!-- Chimes + Tuning -->
+    <section class="chimes-grid">
+      @for (chime of chimes(); track chime.id) {
+      <div class="chime-column">
+        <button
+          class="chime-bar"
+          [class.active]="activeChimes().has(chime.id)"
+          (click)="playNote(chime.note, chime.id)"
+          [attr.aria-label]="'Play ' + chime.note"
+        ></button>
+        <div class="pitch-slider-wrapper">
+          <input
+            type="range"
+            class="pitch-input"
+            min="0"
+            [max]="noteCount - 1"
+            [value]="chime.pitchIndex"
+            (input)="updatePitch(chime.id, +$any($event.target).value)"
+          />
+        </div>
+        <span class="pitch-label">{{ chime.note }}</span>
+      </div>
+      }
+    </section>
+
+    <!-- Playback -->
+    <section class="playback">
+      <div class="accidental-toggle">
+        <span class="accidental-label" [class.active]="!useFlats()"
+          >&#9839;</span
+        >
+        <button
+          class="toggle-switch"
+          role="switch"
+          [attr.aria-checked]="useFlats()"
+          (click)="useFlats.set(!useFlats())"
+        >
+          <span class="toggle-thumb"></span>
+        </button>
+        <span class="accidental-label" [class.active]="useFlats()"
+          >&#9837;</span
+        >
+      </div>
+      <div class="speed-control">
+        <label class="speed-label" for="speed-slider">Speed</label>
+        <input
+          id="speed-slider"
+          type="range"
+          class="speed-slider"
+          min="0"
+          max="100"
+          [value]="speed()"
+          (input)="speed.set(+$any($event.target).value)"
+        />
+      </div>
+      <button class="play-btn" (click)="togglePlay()">
+        {{ isPlaying() ? 'Stop' : 'Play' }}
+      </button>
+    </section>
+  </main>
+</div>
