@@ -306,7 +306,7 @@ export class Chimes implements OnDestroy {
         next.delete(id);
         return next;
       });
-    }, 100);
+    }, 500);
   }
 
   private startPlayback(): void {
