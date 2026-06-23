@@ -89,9 +89,11 @@ export class AudioAppShell implements OnInit, OnDestroy {
     this.capabilities.set(capabilities);
 
     const devices = await this.orchestration.listDevices();
-    this.inputDevices.set(devices.filter((device) => device.kind === 'audioinput'));
+    this.inputDevices.set(
+      devices.filter((device) => device.kind === 'audioinput'),
+    );
     this.outputDevices.set(
-      devices.filter((device) => device.kind === 'audiooutput')
+      devices.filter((device) => device.kind === 'audiooutput'),
     );
   }
 
@@ -112,8 +114,8 @@ export class AudioAppShell implements OnInit, OnDestroy {
                   ? Number(change.value)
                   : Boolean(change.value),
             }
-          : channel
-      )
+          : channel,
+      ),
     );
   }
 
