@@ -37,7 +37,7 @@ export class NoopAudioEngine implements AudioEngine {
       channels: this.session.channels.map((channel) =>
         channel.id === change.channelId
           ? this.applyChannelParameter(channel, change)
-          : channel
+          : channel,
       ),
     };
   }
@@ -52,7 +52,7 @@ export class NoopAudioEngine implements AudioEngine {
 
   private applyChannelParameter(
     channel: MixerChannel,
-    change: AudioParameterChange
+    change: AudioParameterChange,
   ): MixerChannel {
     if (change.parameter === 'gainDb' || change.parameter === 'pan') {
       return {
