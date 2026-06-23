@@ -56,6 +56,8 @@ describe('audio-model session helpers', () => {
       ],
     });
 
-    expect(duplicateIssues.some((issue) => issue.code === 'duplicate-channel-id')).toBe(true);
+    expect(
+      duplicateIssues.some((issue) => issue.code === 'duplicate-channel-id'),
+    ).toBe(true);
   });
 });

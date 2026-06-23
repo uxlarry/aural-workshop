@@ -65,7 +65,10 @@ export function clampGainDb(gainDb: number): number {
     return 0;
   }
 
-  return Math.min(AUDIO_LIMITS.maxGainDb, Math.max(AUDIO_LIMITS.minGainDb, gainDb));
+  return Math.min(
+    AUDIO_LIMITS.maxGainDb,
+    Math.max(AUDIO_LIMITS.minGainDb, gainDb),
+  );
 }
 
 export function clampPan(pan: number): number {
@@ -123,7 +126,6 @@ export function getSessionValidationIssues(
       });
     }
     seenIds.add(channel.id);
-
   }
 
   return issues;
