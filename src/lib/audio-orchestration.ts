@@ -5,10 +5,7 @@ import {
   DeviceCapabilities,
   MixerSession,
 } from '@org/audio-model';
-import {
-  AudioEngine,
-  NoopAudioEngine,
-} from '@org/audio-engine';
+import { AudioEngine, NoopAudioEngine } from '@org/audio-engine';
 import {
   AudioDeviceAdapter,
   BrowserAudioDeviceAdapter,
@@ -28,7 +25,7 @@ export interface AudioOrchestrationFacade {
 export class DefaultAudioOrchestrationFacade implements AudioOrchestrationFacade {
   constructor(
     private readonly engine: AudioEngine,
-    private readonly deviceAdapter: AudioDeviceAdapter
+    private readonly deviceAdapter: AudioDeviceAdapter,
   ) {}
 
   async start(session: MixerSession): Promise<void> {
@@ -68,6 +65,6 @@ export class DefaultAudioOrchestrationFacade implements AudioOrchestrationFacade
 export function createDefaultAudioOrchestration(): AudioOrchestrationFacade {
   return new DefaultAudioOrchestrationFacade(
     new NoopAudioEngine(),
-    new BrowserAudioDeviceAdapter()
+    new BrowserAudioDeviceAdapter(),
   );
 }
