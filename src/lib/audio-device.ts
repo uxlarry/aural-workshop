@@ -44,10 +44,12 @@ export class BrowserAudioDeviceAdapter implements AudioDeviceAdapter {
   }
 
   async setInputDevice(deviceId: string): Promise<void> {
+    await this.ensureDeviceExists('audioinput', deviceId);
     this.selectedInputDeviceId = deviceId;
   }
 
   async setOutputDevice(deviceId: string): Promise<void> {
+    await this.ensureDeviceExists('audiooutput', deviceId);
     this.selectedOutputDeviceId = deviceId;
   }
 
@@ -59,5 +61,19 @@ export class BrowserAudioDeviceAdapter implements AudioDeviceAdapter {
       inputDeviceId: this.selectedInputDeviceId,
       outputDeviceId: this.selectedOutputDeviceId,
     };
+  }
+
+  private async ensureDeviceExists(
+    kind: AudioDeviceInfo['kind'],
+    deviceId: string,
+  ): Promise<void> {
+    const devices = await this.listDevices();
+    const matchedDevice = devices.find(
+      (device) => device.kind === kind && device.id === deviceId,
+    );
+
+    if (!matchedDevice) {
+      throw new Error(`Unknown ${kind} device id: ${deviceId}`);
+    }
   }
 }
