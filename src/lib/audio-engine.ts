@@ -3,6 +3,10 @@ import {
   AudioParameterChange,
   MixerChannel,
   MixerSession,
+  assertValidMixerSession,
+  clampGainDb,
+  clampPan,
+  normalizeMixerSession,
 } from '@org/audio-model';
 
 export interface AudioEngine {
@@ -15,31 +19,42 @@ export interface AudioEngine {
 
 export class NoopAudioEngine implements AudioEngine {
   private session: MixerSession = { channels: [] };
+  private initialized = false;
   private readonly health: AudioHealthSnapshot = {
     dropoutCount: 0,
     estimatedLatencyMs: 0,
   };
 
   async initialize(): Promise<void> {
-    // Placeholder for AudioContext and graph initialization.
+    this.initialized = true;
   }
 
   async applySession(session: MixerSession): Promise<void> {
-    this.session = {
-      ...session,
-      channels: session.channels.map((channel) => ({ ...channel })),
-    };
+    assertValidMixerSession(session);
+    this.session = normalizeMixerSession(session);
   }
 
   applyParameterChange(change: AudioParameterChange): void {
+    if (!this.initialized || this.session.channels.length === 0) {
+      return;
+    }
+
+    let didApplyChange = false;
     this.session = {
       ...this.session,
-      channels: this.session.channels.map((channel) =>
-        channel.id === change.channelId
-          ? this.applyChannelParameter(channel, change)
-          : channel,
-      ),
+      channels: this.session.channels.map((channel) => {
+        if (channel.id !== change.channelId) {
+          return channel;
+        }
+
+        didApplyChange = true;
+        return this.applyChannelParameter(channel, change);
+      }),
     };
+
+    if (!didApplyChange) {
+      return;
+    }
   }
 
   getHealthSnapshot(): AudioHealthSnapshot {
@@ -47,6 +62,7 @@ export class NoopAudioEngine implements AudioEngine {
   }
 
   async dispose(): Promise<void> {
+    this.initialized = false;
     this.session = { channels: [] };
   }
 
@@ -55,9 +71,13 @@ export class NoopAudioEngine implements AudioEngine {
     change: AudioParameterChange,
   ): MixerChannel {
     if (change.parameter === 'gainDb' || change.parameter === 'pan') {
+      const numericValue = Number(change.value);
       return {
         ...channel,
-        [change.parameter]: Number(change.value),
+        [change.parameter]:
+          change.parameter === 'gainDb'
+            ? clampGainDb(numericValue)
+            : clampPan(numericValue),
       };
     }
 
