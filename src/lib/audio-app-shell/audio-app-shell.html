@@ -1,0 +1,39 @@
+<section class="audio-settings-panel">
+	<h2>Audio Settings</h2>
+
+	<div class="selectors">
+		<mat-form-field appearance="outline">
+			<mat-label>Input Device</mat-label>
+			<mat-select
+				[value]="selectedInputDeviceId()"
+				(valueChange)="onInputDeviceChange($event)"
+			>
+				@for (device of inputDevices(); track device.id) {
+					<mat-option [value]="device.id">{{ device.label }}</mat-option>
+				}
+			</mat-select>
+		</mat-form-field>
+
+		<mat-form-field appearance="outline">
+			<mat-label>Output Device</mat-label>
+			<mat-select
+				[value]="selectedOutputDeviceId()"
+				[disabled]="!capabilities().outputSelectionSupported"
+				(valueChange)="onOutputDeviceChange($event)"
+			>
+				@for (device of outputDevices(); track device.id) {
+					<mat-option [value]="device.id">{{ device.label }}</mat-option>
+				}
+			</mat-select>
+		</mat-form-field>
+
+		<button mat-stroked-button type="button" (click)="openSetupDialog()">
+			Setup Help
+		</button>
+	</div>
+</section>
+
+<audio-audio-ui
+	[channels]="channels()"
+	(parameterChange)="onParameterChange($event)"
+/>

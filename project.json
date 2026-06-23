@@ -1,0 +1,13 @@
+{
+  "name": "audio-app-shell",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/audio/app-shell/src",
+  "prefix": "audio",
+  "projectType": "library",
+  "tags": ["scope:shared", "type:audio-app"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}
