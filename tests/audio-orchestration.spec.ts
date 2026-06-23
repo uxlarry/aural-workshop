@@ -78,8 +78,16 @@ describe('DefaultAudioOrchestrationFacade', () => {
     );
 
     await facade.start(BASE_SESSION);
-    facade.changeParameter({ channelId: 'input-a', parameter: 'gainDb', value: 3 });
-    facade.changeParameter({ channelId: 'input-a', parameter: 'gainDb', value: 7 });
+    facade.changeParameter({
+      channelId: 'input-a',
+      parameter: 'gainDb',
+      value: 3,
+    });
+    facade.changeParameter({
+      channelId: 'input-a',
+      parameter: 'gainDb',
+      value: 7,
+    });
 
     expect(engine.parameterApplications).toHaveLength(0);
 

@@ -38,7 +38,10 @@ export class DefaultAudioOrchestrationFacade implements AudioOrchestrationFacade
   private started = false;
   private currentSession: MixerSession | null = null;
   private parameterFlushTimer: ReturnType<typeof setTimeout> | null = null;
-  private readonly pendingParameterChanges = new Map<string, AudioParameterChange>();
+  private readonly pendingParameterChanges = new Map<
+    string,
+    AudioParameterChange
+  >();
 
   constructor(
     private readonly engine: AudioEngine,
