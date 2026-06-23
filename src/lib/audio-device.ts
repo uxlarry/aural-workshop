@@ -1,7 +1,4 @@
-import {
-  AudioDeviceInfo,
-  DeviceCapabilities,
-} from '@org/audio-model';
+import { AudioDeviceInfo, DeviceCapabilities } from '@org/audio-model';
 
 export interface AudioDeviceAdapter {
   getCapabilities(): Promise<DeviceCapabilities>;
@@ -17,8 +14,8 @@ export class BrowserAudioDeviceAdapter implements AudioDeviceAdapter {
   async getCapabilities(): Promise<DeviceCapabilities> {
     const outputSelectionSupported =
       typeof HTMLMediaElement !== 'undefined' &&
-      typeof (HTMLMediaElement.prototype as { setSinkId?: unknown }).setSinkId ===
-        'function';
+      typeof (HTMLMediaElement.prototype as { setSinkId?: unknown })
+        .setSinkId === 'function';
 
     return { outputSelectionSupported };
   }
@@ -37,7 +34,7 @@ export class BrowserAudioDeviceAdapter implements AudioDeviceAdapter {
     return devices
       .filter(
         (device) =>
-          device.kind === 'audioinput' || device.kind === 'audiooutput'
+          device.kind === 'audioinput' || device.kind === 'audiooutput',
       )
       .map((device) => ({
         id: device.deviceId,
