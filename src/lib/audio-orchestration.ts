@@ -12,6 +12,8 @@ import {
   AudioDeviceAdapter,
   BrowserAudioDeviceAdapter,
 } from '@org/audio-device';
+import { OutputRoutingStatus } from '@org/audio-engine';
+export type { OutputRoutingStatus } from '@org/audio-engine';
 
 export interface OrchestrationPolicy {
   parameterDebounceMs: number;
@@ -31,6 +33,7 @@ export interface AudioOrchestrationFacade {
   listDevices(): Promise<AudioDeviceInfo[]>;
   setInputDevice(deviceId: string): Promise<void>;
   setOutputDevice(deviceId: string): Promise<void>;
+  getOutputRoutingStatus(): OutputRoutingStatus;
   stop(): Promise<void>;
 }
 
@@ -68,6 +71,13 @@ export class DefaultAudioOrchestrationFacade implements AudioOrchestrationFacade
   }
 
   saveSession(): MixerSession | null {
+    this.flushPendingParameterChanges();
+
+    const engineSession = this.engine.getSessionSnapshot();
+    if (engineSession) {
+      this.currentSession = engineSession;
+    }
+
     if (!this.currentSession) {
       return null;
     }
@@ -103,6 +113,11 @@ export class DefaultAudioOrchestrationFacade implements AudioOrchestrationFacade
 
   async setOutputDevice(deviceId: string): Promise<void> {
     await this.deviceAdapter.setOutputDevice(deviceId);
+    await this.engine.setOutputDevice(deviceId);
+  }
+
+  getOutputRoutingStatus(): OutputRoutingStatus {
+    return this.engine.getOutputRoutingStatus();
   }
 
   async stop(): Promise<void> {

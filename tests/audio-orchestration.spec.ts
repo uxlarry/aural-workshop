@@ -3,7 +3,7 @@ import type {
   AudioParameterChange,
   MixerSession,
 } from '@org/audio-model';
-import type { AudioEngine } from '@org/audio-engine';
+import type { AudioEngine, OutputRoutingStatus } from '@org/audio-engine';
 import type { AudioDeviceAdapter } from '@org/audio-device';
 import { DefaultAudioOrchestrationFacade } from '../src';
 
@@ -23,6 +23,29 @@ class FakeAudioEngine implements AudioEngine {
 
   applyParameterChange(change: AudioParameterChange): void {
     this.parameterApplications.push(change);
+  }
+
+  getSessionSnapshot(): MixerSession | null {
+    const latestSession = this.sessionApplications.at(-1);
+    if (!latestSession) {
+      return null;
+    }
+
+    return {
+      sampleRate: latestSession.sampleRate,
+      channels: latestSession.channels.map((channel) => ({ ...channel })),
+    };
+  }
+
+  async setOutputDevice(): Promise<void> {
+    return;
+  }
+
+  getOutputRoutingStatus(): OutputRoutingStatus {
+    return {
+      state: 'default',
+      message: 'Using system default output device.',
+    };
   }
 
   getHealthSnapshot(): AudioHealthSnapshot {
