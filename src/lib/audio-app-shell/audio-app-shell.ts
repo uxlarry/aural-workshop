@@ -6,7 +6,8 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
+import { OverlayContainer } from '@angular/cdk/overlay';
 import {
   AudioHealthSnapshot,
   AudioDeviceInfo,
@@ -24,10 +25,17 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { AudioSetupDialog } from './audio-setup-dialog';
+import {
+  AudioSetupDialog,
+  AudioSetupDialogResult,
+  AudioTheme,
+} from './audio-setup-dialog';
 
 const SESSION_STORAGE_KEY = 'bbloop.mixer.session.v1';
+const THEME_STORAGE_KEY = 'bbloop.theme.v1';
+const SHOW_DIAGNOSTICS_STORAGE_KEY = 'bbloop.show-diagnostics.v1';
 
 @Component({
   selector: 'audio-audio-app-shell',
@@ -37,6 +45,7 @@ const SESSION_STORAGE_KEY = 'bbloop.mixer.session.v1';
     MatFormFieldModule,
     MatSelectModule,
     MatButtonModule,
+    MatIconModule,
     MatDialogModule,
   ],
   templateUrl: './audio-app-shell.html',
@@ -44,10 +53,14 @@ const SESSION_STORAGE_KEY = 'bbloop.mixer.session.v1';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AudioAppShell implements OnInit, OnDestroy {
+  private readonly document = inject(DOCUMENT);
+  private readonly overlayContainer = inject(OverlayContainer);
   private readonly dialog = inject(MatDialog);
   private readonly orchestration: AudioOrchestrationFacade =
     createDefaultAudioOrchestration();
   private meterRefreshTimer: ReturnType<typeof setInterval> | null = null;
+  readonly theme = signal<AudioTheme>('dark');
+  readonly showDiagnostics = signal<boolean>(true);
 
   readonly channels = signal<MixerChannel[]>([
     {
@@ -99,14 +112,15 @@ export class AudioAppShell implements OnInit, OnDestroy {
     inputIcon: '/assets/figma/icon-input.svg',
     outputIcon: '/assets/figma/icon-output.svg',
     channelIndicator: '/assets/figma/icon-channel.svg',
-    healthIcon: '/assets/figma/icon-health.svg',
-    restartIcon: '/assets/figma/icon-restart.svg',
     inputPanel: '/assets/figma/panel-input.png',
     outputPanel: '/assets/figma/panel-output.png',
-    healthOutline: '/assets/figma/health-card-outline.svg',
   };
 
   async ngOnInit(): Promise<void> {
+    this.theme.set(this.loadStoredTheme());
+    this.showDiagnostics.set(this.loadStoredShowDiagnostics());
+    this.applyThemeClass(this.theme());
+
     const initialSession = this.loadStoredSession() ?? this.currentSession();
     this.channels.set(initialSession.channels);
 
@@ -211,11 +225,47 @@ export class AudioAppShell implements OnInit, OnDestroy {
   }
 
   openSetupDialog(): void {
-    this.dialog.open(AudioSetupDialog, {
-      data: {
-        outputSelectionSupported: this.capabilities().outputSelectionSupported,
-      },
-    });
+    this.dialog
+      .open(AudioSetupDialog, {
+        data: {
+          outputSelectionSupported:
+            this.capabilities().outputSelectionSupported,
+          theme: this.theme(),
+          showDiagnostics: this.showDiagnostics(),
+          onThemeChange: (theme: AudioTheme) => this.updateTheme(theme),
+          onShowDiagnosticsChange: (showDiagnostics: boolean) =>
+            this.updateShowDiagnostics(showDiagnostics),
+        },
+      })
+      .afterClosed()
+      .subscribe((result: AudioSetupDialogResult | undefined) => {
+        if (result?.theme) {
+          this.updateTheme(result.theme);
+        }
+
+        if (typeof result?.showDiagnostics === 'boolean') {
+          this.updateShowDiagnostics(result.showDiagnostics);
+        }
+      });
+  }
+
+  private updateTheme(theme: AudioTheme): void {
+    if (theme === this.theme()) {
+      return;
+    }
+
+    this.theme.set(theme);
+    this.applyThemeClass(theme);
+    this.persistTheme(theme);
+  }
+
+  private updateShowDiagnostics(showDiagnostics: boolean): void {
+    if (showDiagnostics === this.showDiagnostics()) {
+      return;
+    }
+
+    this.showDiagnostics.set(showDiagnostics);
+    this.persistShowDiagnostics(showDiagnostics);
   }
 
   private currentSession(): MixerSession {
@@ -289,6 +339,77 @@ export class AudioAppShell implements OnInit, OnDestroy {
     } catch {
       return null;
     }
+  }
+
+  private loadStoredTheme(): AudioTheme {
+    if (typeof localStorage === 'undefined') {
+      return 'dark';
+    }
+
+    try {
+      const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+      if (storedTheme === 'light' || storedTheme === 'dark') {
+        return storedTheme;
+      }
+
+      return 'dark';
+    } catch {
+      return 'dark';
+    }
+  }
+
+  private persistTheme(theme: AudioTheme): void {
+    if (typeof localStorage === 'undefined') {
+      return;
+    }
+
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, theme);
+    } catch {
+      // Ignore persistence failures; theme still applies for this session.
+    }
+  }
+
+  private loadStoredShowDiagnostics(): boolean {
+    if (typeof localStorage === 'undefined') {
+      return true;
+    }
+
+    try {
+      const storedValue = localStorage.getItem(SHOW_DIAGNOSTICS_STORAGE_KEY);
+      if (storedValue === null) {
+        return true;
+      }
+
+      return storedValue === 'true';
+    } catch {
+      return true;
+    }
+  }
+
+  private persistShowDiagnostics(showDiagnostics: boolean): void {
+    if (typeof localStorage === 'undefined') {
+      return;
+    }
+
+    try {
+      localStorage.setItem(
+        SHOW_DIAGNOSTICS_STORAGE_KEY,
+        String(showDiagnostics),
+      );
+    } catch {
+      // Ignore persistence failures; visibility still applies for this session.
+    }
+  }
+
+  private applyThemeClass(theme: AudioTheme): void {
+    const body = this.document.body;
+    const overlayContainer = this.overlayContainer.getContainerElement();
+
+    body.classList.toggle('theme-light', theme === 'light');
+    body.classList.toggle('theme-dark', theme === 'dark');
+    overlayContainer.classList.toggle('theme-light', theme === 'light');
+    overlayContainer.classList.toggle('theme-dark', theme === 'dark');
   }
 
   private async applyOutputDeviceSelection(deviceId: string): Promise<void> {

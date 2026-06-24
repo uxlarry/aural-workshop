@@ -4,14 +4,16 @@
   min-height: 832px;
   margin: 0 auto;
   position: relative;
-  color: #ffffff;
-  background: #000000;
+  color: var(--color-app-fg);
+  background: transparent;
   font-family: 'Avenir Next', 'Segoe UI', sans-serif;
 }
 
 .mixer-header {
   position: absolute;
   inset: 0;
+  z-index: 1;
+  pointer-events: none;
 }
 
 .bbloop-logo {
@@ -32,6 +34,20 @@
   top: 46px;
   display: flex;
   gap: 172px;
+}
+
+.settings-trigger {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  pointer-events: auto;
+  color: var(--color-app-fg);
+  background: var(--color-overlay-subtle);
+  border: 1px solid var(--color-overlay-hover);
+}
+
+.settings-trigger:hover {
+  background: var(--color-overlay-hover);
 }
 
 .indicator {
@@ -80,9 +96,9 @@
   min-height: 33px;
   padding: 6px 12px;
   border-radius: 16px;
-  border: 1px solid #cac4d0;
-  background: rgb(32 32 32 / 70%);
-  color: #ffffff;
+  border: 1px solid var(--color-outline);
+  background: var(--color-chip-bg);
+  color: var(--color-app-fg);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -98,18 +114,18 @@
 }
 
 .device-chip--selected {
-  border-color: #e8def8;
-  background: #e8def8;
+  border-color: var(--color-chip-selected-bg);
+  background: var(--color-chip-selected-bg);
   border-radius: 8px;
-  color: #4a4459;
+  color: var(--color-chip-selected-fg);
 }
 
 .device-chip--selected .chip-label {
-  color: #4a4459;
+  color: var(--color-chip-selected-fg);
 }
 
 .device-chip--selected .chip-check {
-  color: #4a4459;
+  color: var(--color-chip-selected-fg);
 }
 
 .chip-check {
@@ -139,30 +155,30 @@
 .outline-button {
   min-height: 32px;
   padding: 0 12px;
-  border: 1px solid #cac4d0;
+  border: 1px solid var(--color-outline);
   border-radius: 14px;
-  color: #f1eafe;
+  color: var(--color-text-emphasis);
   background: transparent;
   font-size: 0.82rem;
   cursor: pointer;
 }
 
 .outline-button:hover {
-  background: rgb(255 255 255 / 8%);
+  background: var(--color-overlay-subtle);
 }
 
 .routing-status {
   margin: 0;
   font-size: 0.8rem;
-  color: #c4c4c4;
+  color: var(--color-text-muted);
 }
 
 .routing-status--ok {
-  color: #8fedb2;
+  color: var(--color-status-ok);
 }
 
 .routing-status--warn {
-  color: #fbbf77;
+  color: var(--color-status-warn);
 }
 
 .health-card {
@@ -175,32 +191,48 @@
   border-radius: 16px;
   padding: 12px 14px;
   display: grid;
-  grid-template-columns: 32px 1fr auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 10px;
 }
 
-.health-card::before {
-  content: '';
+.health-outline {
   position: absolute;
   inset: 0;
-  border-radius: 16px;
-  background-image: var(--health-outline);
-  background-size: 274px 115px;
-  background-repeat: no-repeat;
+  width: 100%;
+  height: 100%;
+  color: var(--color-diagnostic-outline);
   pointer-events: none;
 }
 
+.health-outline rect {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+}
+
+.health-icon {
+  position: absolute;
+  top: 12px;
+  left: 14px;
+  pointer-events: none;
+  color: var(--color-diagnostic-icon);
+}
+
 .health-card--warn {
-  box-shadow: inset 0 0 0 2px #ffbf8a;
+  box-shadow: inset 0 0 0 2px var(--color-health-warn);
 }
 
 .health-icon svg,
-.health-icon img,
-.health-reset img {
+.health-reset svg {
   width: 24px;
   height: 24px;
   display: block;
+}
+
+.health-icon path,
+.health-reset path {
+  fill: currentColor;
 }
 
 .health-copy p {
@@ -208,6 +240,10 @@
   font-size: 0.9rem;
   line-height: 1.45;
   position: relative;
+}
+
+.health-copy {
+  padding-top: 28px;
 }
 
 .health-reset {
@@ -218,13 +254,15 @@
   border: none;
   border-radius: 9px;
   background: transparent;
-  color: #ffffff;
+  color: var(--color-diagnostic-icon);
   cursor: pointer;
   position: relative;
+  align-self: end;
+  margin-top: 10px;
 }
 
 .health-reset:hover {
-  background: rgb(255 255 255 / 12%);
+  background: var(--color-overlay-hover);
 }
 
 .device-column {
@@ -272,6 +310,10 @@
   .header-indicators {
     position: static;
     gap: 12px;
+  }
+
+  .settings-trigger {
+    position: static;
   }
 
   .health-card {

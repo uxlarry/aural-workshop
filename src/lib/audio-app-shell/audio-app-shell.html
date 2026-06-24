@@ -4,6 +4,16 @@
       <img [src]="figmaAssets.logo" alt="bbloop" />
     </div>
 
+    <button
+      class="settings-trigger"
+      mat-icon-button
+      type="button"
+      aria-label="Open settings"
+      (click)="openSetupDialog()"
+    >
+      <mat-icon>settings</mat-icon>
+    </button>
+
     <div class="header-indicators" aria-hidden="true">
       <span class="indicator indicator--input" title="Input">
         <img [src]="figmaAssets.inputIcon" alt="Input" />
@@ -101,13 +111,32 @@
     </aside>
   </div>
 
+  @if (showDiagnostics()) {
   <section
     class="health-card"
     [class.health-card--warn]="audioHealth().dropoutCount > 0"
-    [style.--health-outline]="'url(' + figmaAssets.healthOutline + ')'"
   >
+    <svg
+      class="health-outline"
+      viewBox="0 0 274 115"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      <rect x="1.5" y="1.5" width="271" height="112" rx="14.5" />
+    </svg>
+
     <div class="health-icon" aria-hidden="true">
-      <img [src]="figmaAssets.healthIcon" alt="Health" />
+      <svg viewBox="0 0 32 32" aria-hidden="true">
+        <path
+          d="M26.6667 5.33331H5.33335C3.86669 5.33331 2.66669 6.53331 2.66669 7.99998V12H5.33335V7.99998H26.6667V12H29.3334V7.99998C29.3334 6.53331 28.1334 5.33331 26.6667 5.33331Z"
+        />
+        <path
+          d="M26.6667 24H5.33335V20H2.66669V24C2.66669 25.4666 3.86669 26.6666 5.33335 26.6666H26.6667C28.1334 26.6666 29.3334 25.4666 29.3334 24V20H26.6667V24Z"
+        />
+        <path
+          d="M19.8534 10.0666C19.4 9.15998 17.92 9.15998 17.4667 10.0666L13.3334 18.3466L11.8534 15.4C11.6267 14.9466 11.1734 14.6666 10.6667 14.6666H2.66669V17.3333H9.84002L12.1334 21.9333C12.3734 22.3866 12.8267 22.6666 13.3334 22.6666C13.84 22.6666 14.2934 22.3866 14.52 21.9333L18.6667 13.6533L20.1467 16.6C20.3734 17.0533 20.8267 17.3333 21.3334 17.3333H29.3334V14.6666H22.16L19.8534 10.0666Z"
+        />
+      </svg>
     </div>
 
     <div class="health-copy">
@@ -121,7 +150,11 @@
       title="Reset health counters"
       (click)="onResetHealthCounters()"
     >
-      <img [src]="figmaAssets.restartIcon" alt="Reset" />
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M6 13.285C6 11.635 6.67 10.135 7.76 9.04497L6.34 7.62497C4.9 9.07497 4 11.075 4 13.285C4 17.365 7.05 20.725 11 21.215V19.195C8.17 18.715 6 16.255 6 13.285ZM20 13.285C20 8.86497 16.42 5.28497 12 5.28497C11.94 5.28497 11.88 5.29497 11.82 5.29497L12.91 4.20497L11.5 2.78497L8 6.28497L11.5 9.78497L12.91 8.37497L11.83 7.29497C11.89 7.29497 11.95 7.28497 12 7.28497C15.31 7.28497 18 9.97497 18 13.285C18 16.255 15.83 18.715 13 19.195V21.215C16.95 20.725 20 17.365 20 13.285Z"
+        />
+      </svg>
     </button>
 
     @if (outputRoutingStatus().state !== 'default') {
@@ -134,4 +167,5 @@
     </button>
     }
   </section>
+  }
 </section>
