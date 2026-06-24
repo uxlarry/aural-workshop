@@ -76,6 +76,16 @@ export class BrowserAudioEngine implements AudioEngine {
     }
 
     this.audioContext = new AudioContext();
+    this.audioContext.onstatechange = () => {
+      if (
+        this.audioContext?.state === 'interrupted' ||
+        this.audioContext?.state === 'suspended'
+      ) {
+        void this.audioContext.resume().catch(() => {
+          this.health.dropoutCount += 1;
+        });
+      }
+    };
     await this.audioContext.resume();
     this.health.estimatedLatencyMs =
       typeof this.audioContext.baseLatency === 'number'
@@ -239,6 +249,21 @@ export class BrowserAudioEngine implements AudioEngine {
       }
     }
     this.mediaStream = stream;
+
+    for (const track of stream.getAudioTracks()) {
+      track.addEventListener('ended', () => {
+        this.health.dropoutCount += 1;
+        if (
+          this.initialized &&
+          this.audioContext &&
+          this.session.channels.length > 0
+        ) {
+          void this.rebuildGraph().catch(() => {
+            this.health.dropoutCount += 1;
+          });
+        }
+      });
+    }
 
     if (this.sourceNode) {
       this.sourceNode.disconnect();
