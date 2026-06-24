@@ -117,11 +117,44 @@ export class AudioAppShell implements OnInit, OnDestroy {
     this.outputRoutingStatus.set(
       this.withOutputDeviceLabel(this.orchestration.getOutputRoutingStatus()),
     );
+
+    this.orchestration.watchDeviceChanges(() => void this.onDevicesChanged());
   }
 
   async ngOnDestroy(): Promise<void> {
     this.stopMeterRefreshLoop();
     await this.orchestration.stop();
+  }
+
+  private async onDevicesChanged(): Promise<void> {
+    const devices = await this.orchestration.listDevices();
+    this.inputDevices.set(
+      devices.filter((device) => device.kind === 'audioinput'),
+    );
+    this.outputDevices.set(
+      devices.filter((device) => device.kind === 'audiooutput'),
+    );
+
+    const currentInputId = this.selectedInputDeviceId();
+    const inputStillPresent =
+      currentInputId === '' ||
+      this.inputDevices().some((device) => device.id === currentInputId);
+    if (!inputStillPresent) {
+      this.selectedInputDeviceId.set('');
+    }
+
+    const currentOutputId = this.selectedOutputDeviceId();
+    const outputStillPresent =
+      currentOutputId === '' ||
+      this.outputDevices().some((device) => device.id === currentOutputId);
+    if (!outputStillPresent) {
+      this.selectedOutputDeviceId.set('');
+      void this.orchestration.resetOutputRouting().then(() => {
+        this.outputRoutingStatus.set(
+          this.orchestration.getOutputRoutingStatus(),
+        );
+      });
+    }
   }
 
   onParameterChange(change: AudioParameterChange): void {
