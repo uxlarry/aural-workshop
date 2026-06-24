@@ -35,6 +35,7 @@ export interface AudioOrchestrationFacade {
   setOutputDevice(deviceId: string): Promise<void>;
   resetHealthCounters(): void;
   resetOutputRouting(): Promise<void>;
+  watchDeviceChanges(callback: () => void): void;
   getOutputRoutingStatus(): OutputRoutingStatus;
   stop(): Promise<void>;
 }
@@ -122,8 +123,12 @@ export class DefaultAudioOrchestrationFacade implements AudioOrchestrationFacade
     this.engine.resetHealthCounters();
   }
 
-  async resetOutputRouting(): Promise<void> {
-    await this.engine.resetOutputRouting();
+  resetOutputRouting(): Promise<void> {
+    return this.engine.resetOutputRouting();
+  }
+
+  watchDeviceChanges(callback: () => void): void {
+    this.deviceAdapter.watchDeviceChanges(callback);
   }
 
   getOutputRoutingStatus(): OutputRoutingStatus {
@@ -136,6 +141,7 @@ export class DefaultAudioOrchestrationFacade implements AudioOrchestrationFacade
       clearTimeout(this.parameterFlushTimer);
       this.parameterFlushTimer = null;
     }
+    this.deviceAdapter.dispose();
     await this.engine.dispose();
     this.started = false;
     this.currentSession = null;

@@ -81,6 +81,13 @@ class FakeDeviceAdapter implements AudioDeviceAdapter {
   async setOutputDevice(): Promise<void> {
     return;
   }
+  watchDeviceChanges(): void {
+    return;
+  }
+
+  dispose(): void {
+    return;
+  }
 }
 
 const BASE_SESSION: MixerSession = {
