@@ -25,6 +25,7 @@ export interface AudioEngine {
   applySession(session: MixerSession): Promise<void>;
   applyParameterChange(change: AudioParameterChange): void;
   setOutputDevice(deviceId: string): Promise<void>;
+  resetHealthCounters(): void;
   getSessionSnapshot(): MixerSession | null;
   getOutputRoutingStatus(): OutputRoutingStatus;
   getHealthSnapshot(): AudioHealthSnapshot;
@@ -159,6 +160,10 @@ export class BrowserAudioEngine implements AudioEngine {
   async setOutputDevice(deviceId: string): Promise<void> {
     this.selectedOutputDeviceId = deviceId;
     await this.applyOutputSinkSelection();
+  }
+
+  resetHealthCounters(): void {
+    this.health.dropoutCount = 0;
   }
 
   getHealthSnapshot(): AudioHealthSnapshot {
@@ -514,6 +519,10 @@ export class NoopAudioEngine implements AudioEngine {
   async setOutputDevice(deviceId: string): Promise<void> {
     void deviceId;
     return;
+  }
+
+  resetHealthCounters(): void {
+    this.health.dropoutCount = 0;
   }
 
   async dispose(): Promise<void> {
