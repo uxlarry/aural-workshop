@@ -50,7 +50,16 @@
     >
       {{ outputRoutingStateLabel() }}
     </span>
-    {{ outputRoutingStatus().message }}
+    {{ outputRoutingStatus().message }} @if (outputRoutingStatus().state !==
+    'default') {
+    <button
+      class="health-reset-button"
+      type="button"
+      (click)="onResetOutputRouting()"
+    >
+      Reset Routing
+    </button>
+    }
   </p>
 
   <p

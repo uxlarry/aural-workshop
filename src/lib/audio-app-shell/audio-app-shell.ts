@@ -159,6 +159,13 @@ export class AudioAppShell implements OnInit, OnDestroy {
     this.audioHealth.set(this.orchestration.readHealth());
   }
 
+  onResetOutputRouting(): void {
+    this.selectedOutputDeviceId.set('');
+    void this.orchestration.resetOutputRouting().then(() => {
+      this.outputRoutingStatus.set(this.orchestration.getOutputRoutingStatus());
+    });
+  }
+
   openSetupDialog(): void {
     this.dialog.open(AudioSetupDialog, {
       data: {
