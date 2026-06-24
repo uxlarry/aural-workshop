@@ -33,6 +33,7 @@ export interface AudioOrchestrationFacade {
   listDevices(): Promise<AudioDeviceInfo[]>;
   setInputDevice(deviceId: string): Promise<void>;
   setOutputDevice(deviceId: string): Promise<void>;
+  resetHealthCounters(): void;
   getOutputRoutingStatus(): OutputRoutingStatus;
   stop(): Promise<void>;
 }
@@ -114,6 +115,10 @@ export class DefaultAudioOrchestrationFacade implements AudioOrchestrationFacade
   async setOutputDevice(deviceId: string): Promise<void> {
     await this.deviceAdapter.setOutputDevice(deviceId);
     await this.engine.setOutputDevice(deviceId);
+  }
+
+  resetHealthCounters(): void {
+    this.engine.resetHealthCounters();
   }
 
   getOutputRoutingStatus(): OutputRoutingStatus {

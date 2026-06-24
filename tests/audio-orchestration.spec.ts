@@ -48,6 +48,10 @@ class FakeAudioEngine implements AudioEngine {
     };
   }
 
+  resetHealthCounters(): void {
+    return;
+  }
+
   getHealthSnapshot(): AudioHealthSnapshot {
     return { dropoutCount: 0, estimatedLatencyMs: 0 };
   }
