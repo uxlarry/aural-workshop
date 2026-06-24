@@ -1,60 +1,281 @@
 .audio-mixer {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 12px;
+  display: flex;
+  justify-content: flex-start;
+  gap: 87.5px;
 }
 
 .channel-strip {
-  padding: 12px;
-  border: 1px solid #d6d6d6;
-  border-radius: 8px;
-  background: #ffffff;
+  --fader-top: 26.5px;
+  --fader-height: 565px;
+  --pan-top: 634.6px;
+  --pan-height: 56.81px;
+  --fader-pan-gap: 43.1px;
+
+  width: 132.5px;
+  min-height: 707.5px;
+  padding: 0;
+  border: 0;
+  background: transparent;
   display: grid;
-  gap: 6px;
+  gap: 0;
+  grid-template-rows: auto auto;
+  align-content: start;
+  position: relative;
 }
 
 .channel-title {
-  font-weight: 600;
-  margin-bottom: 4px;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
 }
 
 .channel-control {
-  font-size: 0.85rem;
-  color: #333333;
+  font-size: 0.76rem;
+  color: #d8d8d8;
 }
 
-.meter-wrap {
+.mixer-visual {
+  position: relative;
   width: 100%;
-  height: 8px;
-  border-radius: 999px;
-  background: #ebedf0;
+  height: 707.5px;
+}
+
+/* Level meter — lowest z-index, fills bottom-up */
+.level-meter {
+  position: absolute;
+  /* Constrained to the fader body: centered narrow column inside the largest rectangle. */
+  left: 40.8%;
+  width: 18.8%;
+  top: 26.5px;
+  height: 565px;
+  z-index: 11;
+  border-radius: 3px;
   overflow: hidden;
+  display: flex;
+  align-items: flex-end;
 }
 
-.meter-fill {
+.level-meter__fill {
+  width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, #22b573 0%, #f59e0b 70%, #dc2626 100%);
-  transition: width 100ms linear;
+  background: linear-gradient(
+    to top,
+    #22c55e 0%,
+    #22c55e 60%,
+    #f59e0b 80%,
+    #ef4444 100%
+  );
+  clip-path: inset(100% 0 0 0);
+  transition: clip-path 80ms linear;
+  border-radius: 2px;
 }
 
-.meter-clipping {
-  box-shadow: 0 0 0 1px #dc2626 inset;
+.level-meter--clipping .level-meter__fill {
+  background: #ef4444;
+}
+
+.mixer-level {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.gain-drag-track {
+  position: absolute;
+  left: 35%;
+  width: 30%;
+  top: 26.5px;
+  height: 565px;
+  z-index: 12;
+  cursor: ns-resize;
+  touch-action: none;
+  background: transparent;
+}
+
+.gain-control {
+  position: absolute;
+  left: 50%;
+  width: 113.62px;
+  height: 32.58px;
+  transform: translateX(-50%);
+  border-radius: 16.29px;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 35%);
+  display: grid;
+  place-items: center;
+  transition: top 90ms linear;
+}
+
+.gain-control-line {
+  width: 82%;
+  height: 1px;
+  background: #000000;
+}
+
+.pan-indicator {
+  position: absolute;
+  /* mixer-level SVG natural height: 582px / 125px wide = 4.656 ratio; at strip width 132.5px → ~617px.
+     Pan indicator sits ~100px below that in the remaining strip space. */
+  top: 649px;
+  left: 4.5%;
+  width: 95.1%;
+  z-index: 12;
+}
+
+.pan-control {
+  position: absolute;
+  top: 634.6px;
+  width: 24.5%;
+  z-index: 12;
+  transition: left 120ms ease-out;
+}
+
+.pan-drag-track {
+  position: absolute;
+  /* Full indicator span so knob center aligns to the full underlying width. */
+  left: 4.5%;
+  width: 95.1%;
+  top: 634.6px;
+  height: 56.81px;
+  z-index: 13;
+  cursor: ew-resize;
+  touch-action: none;
+  background: transparent;
+}
+
+.hidden-gain-input {
+  position: absolute;
+  left: 29.5%;
+  top: 0;
+  width: 40%;
+  height: 82%;
+  margin: 0;
+  opacity: 0;
+  writing-mode: vertical-lr;
+  direction: rtl;
+}
+
+.hidden-pan-input {
+  position: absolute;
+  left: 5%;
+  bottom: 8.8%;
+  width: 90%;
+  opacity: 0;
 }
 
 .meter-readout {
-  font-size: 0.78rem;
-  color: #4a4a4a;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
 }
 
 .toggle-row {
+  position: absolute;
+  left: 0;
+  top: calc(var(--pan-top) + var(--pan-height) + var(--fader-pan-gap));
+  width: 132.5px;
   display: flex;
-  gap: 12px;
-  margin-top: 6px;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 13;
+  background: transparent;
 }
 
-.toggle-control {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.9rem;
+.toggle-image {
+  width: 47.5px;
+  height: 47.5px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  cursor: pointer;
+  color: #ffffff; /* default rectangle fill via currentColor */
+}
+
+.toggle-image svg {
+  display: block;
+}
+
+.toggle-image--active {
+  background: transparent;
+}
+
+.toggle-image--solo.toggle-image--active {
+  color: #f97316;
+  background: transparent;
+  box-shadow: none;
+}
+
+.toggle-image--mute.toggle-image--active {
+  color: #ef4444;
+  background: transparent;
+  box-shadow: none;
+}
+
+.control-stack {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.channel-slider {
+  accent-color: #66f1a2;
+}
+
+output {
+  font-size: 0.72rem;
+  color: #d0d0d0;
+}
+
+@media (max-width: 980px) {
+  .audio-mixer {
+    justify-content: center;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+
+  .channel-strip {
+    min-height: 520px;
+    width: min(132.5px, 31vw);
+  }
+
+  .mixer-visual {
+    height: 380px;
+  }
+
+  .control-stack,
+  .meter-readout,
+  .channel-title {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: 0;
+    margin: 6px 0 0;
+    overflow: visible;
+    clip: auto;
+  }
+
+  .control-stack {
+    display: grid;
+    gap: 4px;
+  }
 }
