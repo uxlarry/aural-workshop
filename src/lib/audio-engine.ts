@@ -25,6 +25,7 @@ export interface AudioEngine {
   applySession(session: MixerSession): Promise<void>;
   applyParameterChange(change: AudioParameterChange): void;
   setOutputDevice(deviceId: string): Promise<void>;
+  resetOutputRouting(): Promise<void>;
   resetHealthCounters(): void;
   getSessionSnapshot(): MixerSession | null;
   getOutputRoutingStatus(): OutputRoutingStatus;
@@ -160,6 +161,17 @@ export class BrowserAudioEngine implements AudioEngine {
   async setOutputDevice(deviceId: string): Promise<void> {
     this.selectedOutputDeviceId = deviceId;
     await this.applyOutputSinkSelection();
+  }
+
+  async resetOutputRouting(): Promise<void> {
+    this.selectedOutputDeviceId = null;
+    if (this.monitorElement) {
+      this.monitorElement.srcObject = null;
+    }
+    this.outputRoutingStatus = {
+      state: 'default',
+      message: 'Using system default output device.',
+    };
   }
 
   resetHealthCounters(): void {
@@ -518,6 +530,10 @@ export class NoopAudioEngine implements AudioEngine {
 
   async setOutputDevice(deviceId: string): Promise<void> {
     void deviceId;
+    return;
+  }
+
+  async resetOutputRouting(): Promise<void> {
     return;
   }
 
