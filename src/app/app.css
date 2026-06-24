@@ -1,5 +1,6 @@
 :host {
   display: block;
   min-height: 100vh;
-  background: #000000;
+  background: var(--color-app-bg);
+  color: var(--color-app-fg);
 }
