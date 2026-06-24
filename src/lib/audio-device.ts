@@ -19,11 +19,21 @@ export interface AudioDeviceAdapter {
   listDevices(): Promise<AudioDeviceInfo[]>;
   setInputDevice(deviceId: string): Promise<void>;
   setOutputDevice(deviceId: string): Promise<void>;
+  watchDeviceChanges(callback: () => void): void;
+  dispose(): void;
 }
 
 export class BrowserAudioDeviceAdapter implements AudioDeviceAdapter {
   private selectedInputDeviceId: string | null = null;
   private selectedOutputDeviceId: string | null = null;
+  private deviceChangeCallback: (() => void) | null = null;
+  private readonly boundOnDeviceChange: () => void;
+
+  constructor() {
+    this.boundOnDeviceChange = () => {
+      this.deviceChangeCallback?.();
+    };
+  }
 
   async getCapabilities(): Promise<DeviceCapabilities> {
     const outputSelectionSupported =
@@ -69,6 +79,34 @@ export class BrowserAudioDeviceAdapter implements AudioDeviceAdapter {
     await this.ensureDeviceExists('audiooutput', deviceId);
     this.selectedOutputDeviceId = deviceId;
     selectedDeviceIds.outputDeviceId = deviceId;
+  }
+
+  watchDeviceChanges(callback: () => void): void {
+    this.deviceChangeCallback = callback;
+    if (
+      typeof navigator !== 'undefined' &&
+      navigator.mediaDevices &&
+      navigator.mediaDevices.addEventListener
+    ) {
+      navigator.mediaDevices.addEventListener(
+        'devicechange',
+        this.boundOnDeviceChange,
+      );
+    }
+  }
+
+  dispose(): void {
+    this.deviceChangeCallback = null;
+    if (
+      typeof navigator !== 'undefined' &&
+      navigator.mediaDevices &&
+      navigator.mediaDevices.removeEventListener
+    ) {
+      navigator.mediaDevices.removeEventListener(
+        'devicechange',
+        this.boundOnDeviceChange,
+      );
+    }
   }
 
   getSelectedDeviceIds(): {
