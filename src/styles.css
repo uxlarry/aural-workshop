@@ -91,6 +91,12 @@ body {
   border: 1px solid rgb(255 255 255 / 12%);
 }
 
+.cdk-overlay-container.theme-dark .mat-mdc-menu-panel {
+  background: #151515;
+  color: var(--color-app-fg);
+  border: 1px solid rgb(255 255 255 / 12%);
+}
+
 .cdk-overlay-container.theme-dark .mat-mdc-dialog-title,
 .cdk-overlay-container.theme-dark .mat-mdc-dialog-content,
 .cdk-overlay-container.theme-dark .mat-mdc-dialog-surface .mdc-button__label {
@@ -187,6 +193,12 @@ body {
 }
 
 .cdk-overlay-container.theme-light .mat-mdc-dialog-surface {
+  background: #ffffff;
+  color: var(--color-app-fg);
+  border: 1px solid rgb(17 25 40 / 12%);
+}
+
+.cdk-overlay-container.theme-light .mat-mdc-menu-panel {
   background: #ffffff;
   color: var(--color-app-fg);
   border: 1px solid rgb(17 25 40 / 12%);
