@@ -17,6 +17,7 @@ import {
 import { AudioUi } from '@org/audio-ui';
 import {
   AudioOrchestrationFacade,
+  OutputRoutingStatus,
   createDefaultAudioOrchestration,
 } from '@org/audio-orchestration';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -24,6 +25,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AudioSetupDialog } from './audio-setup-dialog';
+
+const SESSION_STORAGE_KEY = 'bbloop.mixer.session.v1';
 
 @Component({
   selector: 'audio-audio-app-shell',
@@ -43,6 +46,7 @@ export class AudioAppShell implements OnInit, OnDestroy {
   private readonly dialog = inject(MatDialog);
   private readonly orchestration: AudioOrchestrationFacade =
     createDefaultAudioOrchestration();
+  private meterRefreshTimer: ReturnType<typeof setInterval> | null = null;
 
   readonly channels = signal<MixerChannel[]>([
     {
@@ -81,9 +85,18 @@ export class AudioAppShell implements OnInit, OnDestroy {
   readonly outputDevices = signal<AudioDeviceInfo[]>([]);
   readonly selectedInputDeviceId = signal<string>('');
   readonly selectedOutputDeviceId = signal<string>('');
+  readonly outputRoutingStatus = signal<OutputRoutingStatus>({
+    state: 'default',
+    message: 'Using system default output device.',
+  });
 
   async ngOnInit(): Promise<void> {
-    await this.orchestration.start(this.currentSession());
+    const initialSession = this.loadStoredSession() ?? this.currentSession();
+    this.channels.set(initialSession.channels);
+
+    await this.orchestration.start(initialSession);
+    this.outputRoutingStatus.set(this.orchestration.getOutputRoutingStatus());
+    this.startMeterRefreshLoop();
 
     const capabilities = await this.orchestration.getCapabilities();
     this.capabilities.set(capabilities);
@@ -95,9 +108,13 @@ export class AudioAppShell implements OnInit, OnDestroy {
     this.outputDevices.set(
       devices.filter((device) => device.kind === 'audiooutput'),
     );
+    this.outputRoutingStatus.set(
+      this.withOutputDeviceLabel(this.orchestration.getOutputRoutingStatus()),
+    );
   }
 
   async ngOnDestroy(): Promise<void> {
+    this.stopMeterRefreshLoop();
     await this.orchestration.stop();
   }
 
@@ -117,16 +134,18 @@ export class AudioAppShell implements OnInit, OnDestroy {
           : channel,
       ),
     );
+
+    this.persistSession();
   }
 
-  async onInputDeviceChange(deviceId: string): Promise<void> {
+  onInputDeviceChange(deviceId: string): void {
     this.selectedInputDeviceId.set(deviceId);
-    await this.orchestration.setInputDevice(deviceId);
+    void this.orchestration.setInputDevice(deviceId);
   }
 
-  async onOutputDeviceChange(deviceId: string): Promise<void> {
+  onOutputDeviceChange(deviceId: string): void {
     this.selectedOutputDeviceId.set(deviceId);
-    await this.orchestration.setOutputDevice(deviceId);
+    void this.applyOutputDeviceSelection(deviceId);
   }
 
   openSetupDialog(): void {
@@ -141,5 +160,121 @@ export class AudioAppShell implements OnInit, OnDestroy {
     return {
       channels: this.channels(),
     };
+  }
+
+  private startMeterRefreshLoop(): void {
+    this.stopMeterRefreshLoop();
+
+    this.meterRefreshTimer = setInterval(() => {
+      const session = this.orchestration.saveSession();
+      if (!session) {
+        return;
+      }
+
+      this.channels.set(session.channels);
+    }, 150);
+  }
+
+  private stopMeterRefreshLoop(): void {
+    if (!this.meterRefreshTimer) {
+      return;
+    }
+
+    clearInterval(this.meterRefreshTimer);
+    this.meterRefreshTimer = null;
+  }
+
+  private persistSession(): void {
+    if (typeof localStorage === 'undefined') {
+      return;
+    }
+
+    try {
+      const snapshot: MixerSession = {
+        channels: this.channels().map(({ meter, ...channel }) => {
+          void meter;
+          return channel;
+        }),
+      };
+      localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(snapshot));
+    } catch {
+      // Ignore persistence failures to avoid blocking live audio controls.
+    }
+  }
+
+  private loadStoredSession(): MixerSession | null {
+    if (typeof localStorage === 'undefined') {
+      return null;
+    }
+
+    try {
+      const serialized = localStorage.getItem(SESSION_STORAGE_KEY);
+      if (!serialized) {
+        return null;
+      }
+
+      const parsed = JSON.parse(serialized) as MixerSession;
+      if (
+        !parsed ||
+        !Array.isArray(parsed.channels) ||
+        parsed.channels.length === 0
+      ) {
+        return null;
+      }
+
+      return parsed;
+    } catch {
+      return null;
+    }
+  }
+
+  private async applyOutputDeviceSelection(deviceId: string): Promise<void> {
+    try {
+      await this.orchestration.setOutputDevice(deviceId);
+    } finally {
+      this.outputRoutingStatus.set(
+        this.withOutputDeviceLabel(this.orchestration.getOutputRoutingStatus()),
+      );
+    }
+  }
+
+  private withOutputDeviceLabel(
+    status: OutputRoutingStatus,
+  ): OutputRoutingStatus {
+    if (!status.deviceId) {
+      return status;
+    }
+
+    const matchedDevice = this.outputDevices().find(
+      (device) => device.id === status.deviceId,
+    );
+    if (!matchedDevice) {
+      return status;
+    }
+
+    const suffix = ` (${matchedDevice.label})`;
+    if (status.message.includes(suffix)) {
+      return status;
+    }
+
+    return {
+      ...status,
+      message: `${status.message}${suffix}`,
+    };
+  }
+
+  outputRoutingStateLabel(): string {
+    const state = this.outputRoutingStatus().state;
+    if (state === 'applied') {
+      return 'Applied';
+    }
+    if (state === 'failed') {
+      return 'Failed';
+    }
+    if (state === 'unsupported') {
+      return 'Unsupported';
+    }
+
+    return 'Default';
   }
 }

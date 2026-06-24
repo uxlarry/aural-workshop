@@ -17,3 +17,42 @@
   gap: 12px;
   align-items: end;
 }
+
+.routing-status {
+  margin: 10px 2px 0;
+  font-size: 0.9rem;
+  color: #4a4a4a;
+}
+
+.routing-status--ok {
+  color: #107d3a;
+}
+
+.routing-status--warn {
+  color: #8a3b00;
+}
+
+.routing-state-pill {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid #909090;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #4a4a4a;
+  background: #ffffff;
+  vertical-align: middle;
+}
+
+.routing-state-pill--ok {
+  border-color: #107d3a;
+  color: #107d3a;
+  background: #eaf8f0;
+}
+
+.routing-state-pill--warn {
+  border-color: #8a3b00;
+  color: #8a3b00;
+  background: #fff3e8;
+}

@@ -31,6 +31,27 @@
       Setup Help
     </button>
   </div>
+
+  <p
+    class="routing-status"
+    [class.routing-status--ok]="outputRoutingStatus().state === 'applied'"
+    [class.routing-status--warn]="
+      outputRoutingStatus().state === 'unsupported' ||
+      outputRoutingStatus().state === 'failed'
+    "
+  >
+    <span
+      class="routing-state-pill"
+      [class.routing-state-pill--ok]="outputRoutingStatus().state === 'applied'"
+      [class.routing-state-pill--warn]="
+        outputRoutingStatus().state === 'unsupported' ||
+        outputRoutingStatus().state === 'failed'
+      "
+    >
+      {{ outputRoutingStateLabel() }}
+    </span>
+    {{ outputRoutingStatus().message }}
+  </p>
 </section>
 
 <audio-audio-ui
