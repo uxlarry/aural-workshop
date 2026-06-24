@@ -7,7 +7,7 @@ import {
   assertValidMixerSession,
   normalizeMixerSession,
 } from '@org/audio-model';
-import { AudioEngine, NoopAudioEngine } from '@org/audio-engine';
+import { AudioEngine, BrowserAudioEngine } from '@org/audio-engine';
 import {
   AudioDeviceAdapter,
   BrowserAudioDeviceAdapter,
@@ -96,6 +96,9 @@ export class DefaultAudioOrchestrationFacade implements AudioOrchestrationFacade
 
   async setInputDevice(deviceId: string): Promise<void> {
     await this.deviceAdapter.setInputDevice(deviceId);
+    if (this.currentSession) {
+      await this.engine.applySession(this.currentSession);
+    }
   }
 
   async setOutputDevice(deviceId: string): Promise<void> {
@@ -176,7 +179,7 @@ export class DefaultAudioOrchestrationFacade implements AudioOrchestrationFacade
 
 export function createDefaultAudioOrchestration(): AudioOrchestrationFacade {
   return new DefaultAudioOrchestrationFacade(
-    new NoopAudioEngine(),
+    new BrowserAudioEngine(),
     new BrowserAudioDeviceAdapter(),
   );
 }
