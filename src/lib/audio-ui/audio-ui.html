@@ -16,6 +16,40 @@
       (input)="onGainChange(channel.id, +$any($event.target).value)"
     />
     <output>{{ channel.gainDb | number: '1.0-1' }} dB</output>
+
+    <label class="channel-control" [for]="channel.id + '-pan'">Pan</label>
+    <input
+      type="range"
+      min="-1"
+      max="1"
+      step="0.01"
+      [id]="channel.id + '-pan'"
+      [value]="channel.pan"
+      (input)="onPanChange(channel.id, +$any($event.target).value)"
+    />
+    <output>{{ channel.pan | number: '1.2-2' }}</output>
+
+    <div class="toggle-row">
+      <label class="toggle-control" [for]="channel.id + '-muted'">
+        <input
+          type="checkbox"
+          [id]="channel.id + '-muted'"
+          [checked]="channel.muted"
+          (change)="onMutedChange(channel.id, $any($event.target).checked)"
+        />
+        Mute
+      </label>
+
+      <label class="toggle-control" [for]="channel.id + '-solo'">
+        <input
+          type="checkbox"
+          [id]="channel.id + '-solo'"
+          [checked]="channel.solo"
+          (change)="onSoloChange(channel.id, $any($event.target).checked)"
+        />
+        Solo
+      </label>
+    </div>
   </article>
   }
 </section>

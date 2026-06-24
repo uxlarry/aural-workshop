@@ -1,0 +1,37 @@
+.audio-mixer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.channel-strip {
+  padding: 12px;
+  border: 1px solid #d6d6d6;
+  border-radius: 8px;
+  background: #ffffff;
+  display: grid;
+  gap: 6px;
+}
+
+.channel-title {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.channel-control {
+  font-size: 0.85rem;
+  color: #333333;
+}
+
+.toggle-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.toggle-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.9rem;
+}

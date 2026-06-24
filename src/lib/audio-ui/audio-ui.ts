@@ -29,4 +29,28 @@ export class AudioUi {
       value: gainDb,
     });
   }
+
+  onPanChange(channelId: AudioChannelId, pan: number): void {
+    this.parameterChange.emit({
+      channelId,
+      parameter: 'pan',
+      value: pan,
+    });
+  }
+
+  onMutedChange(channelId: AudioChannelId, muted: boolean): void {
+    this.parameterChange.emit({
+      channelId,
+      parameter: 'muted',
+      value: muted,
+    });
+  }
+
+  onSoloChange(channelId: AudioChannelId, solo: boolean): void {
+    this.parameterChange.emit({
+      channelId,
+      parameter: 'solo',
+      value: solo,
+    });
+  }
 }
