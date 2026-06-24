@@ -1,0 +1,17 @@
+<svg width="33" height="57" viewBox="0 0 33 57" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="33" height="57" fill="#1E1E1E"/>
+<g id="MacBook Air - 1">
+<rect width="1280" height="832" transform="translate(-407 -696)" fill="black"/>
+<g id="Mixer Control">
+<g id="Pan Control" clip-path="url(#clip0_0_1)">
+<path id="Vector" d="M19.68 0H12.9C5.77553 0 0 5.77553 0 12.9V43.91C0 51.0345 5.77553 56.81 12.9 56.81H19.68C26.8045 56.81 32.58 51.0345 32.58 43.91V12.9C32.58 5.77553 26.8045 0 19.68 0Z" fill="white"/>
+<path id="Vector_2" d="M16.29 5.45001V51.36" stroke="black" stroke-miterlimit="10"/>
+</g>
+</g>
+</g>
+<defs>
+<clipPath id="clip0_0_1">
+<rect width="32.58" height="56.81" fill="white"/>
+</clipPath>
+</defs>
+</svg>

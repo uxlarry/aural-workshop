@@ -1,0 +1,25 @@
+<svg width="125" height="582" viewBox="0 0 125 582" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="125" height="582" fill="#1E1E1E"/>
+<g id="MacBook Air - 1">
+<rect width="1280" height="832" transform="translate(-360 -110)" fill="black"/>
+<g id="Mixer Control">
+<g id="Mixer Level" clip-path="url(#clip0_0_1)">
+<path id="Vector" d="M95.06 4C109.36 4 121 15.64 121 29.94V551.31C121 565.61 109.36 577.25 95.06 577.25H29.94C15.64 577.25 4 565.61 4 551.31V29.94C4 15.64 15.64 4 29.94 4H95.06ZM95.06 0H29.94C13.4 0 0 13.4 0 29.94V551.31C0 567.85 13.4 581.25 29.94 581.25H95.06C111.6 581.25 125 567.84 125 551.31V29.94C125 13.4 111.6 0 95.06 0Z" fill="white"/>
+<path id="Vector_2" d="M88.98 558.79H35.94" stroke="white" stroke-miterlimit="10"/>
+<path id="Vector_3" d="M88.98 25.98H35.94" stroke="white" stroke-miterlimit="10"/>
+<path id="Vector_4" d="M88.98 292.39H35.94" stroke="white" stroke-miterlimit="10"/>
+<path id="Vector_5" d="M81.12 425.59H43.81" stroke="white" stroke-miterlimit="10"/>
+<path id="Vector_6" d="M81.12 159.18H43.81" stroke="white" stroke-miterlimit="10"/>
+<path id="Vector_7" d="M75.36 492.19H49.57" stroke="white" stroke-miterlimit="10"/>
+<path id="Vector_8" d="M75.36 358.99H49.57" stroke="white" stroke-miterlimit="10"/>
+<path id="Vector_9" d="M75.36 92.58H49.57" stroke="white" stroke-miterlimit="10"/>
+<path id="Vector_10" d="M75.36 225.78H49.57" stroke="white" stroke-miterlimit="10"/>
+</g>
+</g>
+</g>
+<defs>
+<clipPath id="clip0_0_1">
+<rect width="125" height="581.25" fill="white"/>
+</clipPath>
+</defs>
+</svg>

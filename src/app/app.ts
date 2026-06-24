@@ -7,6 +7,4 @@ import { AudioAppShell } from '@org/audio-app-shell';
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
-export class App {
-  protected readonly title = 'bbloop';
-}
+export class App {}
