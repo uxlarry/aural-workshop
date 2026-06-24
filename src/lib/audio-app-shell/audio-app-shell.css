@@ -1,101 +1,301 @@
-.audio-settings-panel {
-  padding: 16px;
-  margin-bottom: 16px;
-  border: 1px solid #dcdcdc;
-  border-radius: 8px;
-  background: #fafafa;
+.mixer-screen {
+  width: 100%;
+  max-width: 1280px;
+  min-height: 832px;
+  margin: 0 auto;
+  position: relative;
+  color: #ffffff;
+  background: #000000;
+  font-family: 'Avenir Next', 'Segoe UI', sans-serif;
 }
 
-.audio-settings-panel h2 {
-  margin: 0 0 12px;
-  font-size: 1.1rem;
+.mixer-header {
+  position: absolute;
+  inset: 0;
 }
 
-.selectors {
+.bbloop-logo {
+  position: absolute;
+  left: 36px;
+  top: 25px;
+}
+
+.bbloop-logo img {
+  width: 132px;
+  height: 35px;
+  display: block;
+}
+
+.header-indicators {
+  position: absolute;
+  left: 397px;
+  top: 46px;
+  display: flex;
+  gap: 172px;
+}
+
+.indicator {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 12px;
-  align-items: end;
+  place-items: center;
+  background: transparent;
 }
 
-.routing-status {
-  margin: 10px 2px 0;
-  font-size: 0.9rem;
-  color: #4a4a4a;
+.indicator img {
+  width: 48px;
+  height: 48px;
+  display: block;
 }
 
-.routing-status--ok {
-  color: #107d3a;
+.indicator--channel {
+  border-radius: 50%;
+  overflow: hidden;
 }
 
-.routing-status--warn {
-  color: #8a3b00;
+.mixer-layout {
+  position: absolute;
+  inset: 0;
 }
 
-.routing-state-pill {
-  display: inline-block;
-  margin-right: 8px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  border: 1px solid #909090;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #4a4a4a;
-  background: #ffffff;
-  vertical-align: middle;
+.device-column {
+  position: absolute;
+  width: 280px;
 }
 
-.routing-state-pill--ok {
-  border-color: #107d3a;
-  color: #107d3a;
-  background: #eaf8f0;
+.device-column::before {
+  content: none;
 }
 
-.routing-state-pill--warn {
-  border-color: #8a3b00;
-  color: #8a3b00;
-  background: #fff3e8;
+.device-chip-list {
+  position: relative;
+  display: grid;
+  gap: 11px;
+  margin-top: 0;
 }
 
-.health-status {
-  margin: 8px 2px 0;
-  font-size: 0.85rem;
-  color: #4a4a4a;
+.device-chip {
+  width: 100%;
+  min-height: 33px;
+  padding: 6px 12px;
+  border-radius: 16px;
+  border: 1px solid #cac4d0;
+  background: rgb(32 32 32 / 70%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  text-align: left;
+  font-size: 0.84rem;
+  line-height: 20px;
 }
 
-.health-status--warn {
-  color: #8a3b00;
+.device-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
-.health-state-pill {
-  display: inline-block;
-  margin-right: 8px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  border: 1px solid #909090;
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: #4a4a4a;
-  background: #ffffff;
-  vertical-align: middle;
+.device-chip--selected {
+  border-color: #e8def8;
+  background: #e8def8;
+  border-radius: 8px;
+  color: #4a4459;
 }
 
-.health-separator {
-  margin: 0 8px;
-  color: #888888;
+.device-chip--selected .chip-label {
+  color: #4a4459;
 }
 
-.health-reset-button {
-  margin-left: 10px;
-  padding: 2px 8px;
-  border: 1px solid #b5b5b5;
-  border-radius: 6px;
-  background: #ffffff;
-  color: #4a4a4a;
-  font-size: 0.78rem;
+.device-chip--selected .chip-check {
+  color: #4a4459;
+}
+
+.chip-check {
+  width: 14px;
+  opacity: 0;
+}
+
+.chip-check--visible {
+  opacity: 1;
+}
+
+.chip-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mixer-actions {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.outline-button {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid #cac4d0;
+  border-radius: 14px;
+  color: #f1eafe;
+  background: transparent;
+  font-size: 0.82rem;
   cursor: pointer;
 }
 
-.health-reset-button:hover {
-  background: #f3f3f3;
+.outline-button:hover {
+  background: rgb(255 255 255 / 8%);
+}
+
+.routing-status {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #c4c4c4;
+}
+
+.routing-status--ok {
+  color: #8fedb2;
+}
+
+.routing-status--warn {
+  color: #fbbf77;
+}
+
+.health-card {
+  position: absolute;
+  left: 986px;
+  top: 696px;
+  width: 274px;
+  min-height: 115px;
+  border: 0;
+  border-radius: 16px;
+  padding: 12px 14px;
+  display: grid;
+  grid-template-columns: 32px 1fr auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.health-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  background-image: var(--health-outline);
+  background-size: 274px 115px;
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+
+.health-card--warn {
+  box-shadow: inset 0 0 0 2px #ffbf8a;
+}
+
+.health-icon svg,
+.health-icon img,
+.health-reset img {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.health-copy p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  position: relative;
+}
+
+.health-reset {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: #ffffff;
+  cursor: pointer;
+  position: relative;
+}
+
+.health-reset:hover {
+  background: rgb(255 255 255 / 12%);
+}
+
+.device-column {
+  left: 40px;
+  top: 231px;
+}
+
+.device-column--output {
+  left: 976px;
+  top: 231px;
+}
+
+.mixer-column {
+  position: absolute;
+  left: 360px;
+  top: 110px;
+  width: 572px;
+}
+
+@media (max-width: 1200px) {
+  .mixer-screen {
+    min-height: 100vh;
+    padding: 24px 20px;
+  }
+
+  .mixer-layout {
+    position: static;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+
+  .mixer-header {
+    position: static;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .bbloop-logo {
+    position: static;
+  }
+
+  .header-indicators {
+    position: static;
+    gap: 12px;
+  }
+
+  .health-card {
+    position: static;
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .mixer-column,
+  .device-column,
+  .device-column--output {
+    position: static;
+    width: 100%;
+  }
+
+  .mixer-actions {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
 }

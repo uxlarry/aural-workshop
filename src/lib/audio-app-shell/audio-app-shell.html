@@ -1,86 +1,137 @@
-<section class="audio-settings-panel">
-  <h2>Audio Settings</h2>
+<section class="mixer-screen">
+  <header class="mixer-header">
+    <div class="bbloop-logo" aria-label="bbloop">
+      <img [src]="figmaAssets.logo" alt="bbloop" />
+    </div>
 
-  <div class="selectors">
-    <mat-form-field appearance="outline">
-      <mat-label>Input Device</mat-label>
-      <mat-select
-        [value]="selectedInputDeviceId()"
-        (valueChange)="onInputDeviceChange($event)"
-      >
-        @for (device of inputDevices(); track device.id) {
-        <mat-option [value]="device.id">{{ device.label }}</mat-option>
+    <div class="header-indicators" aria-hidden="true">
+      <span class="indicator indicator--input" title="Input">
+        <img [src]="figmaAssets.inputIcon" alt="Input" />
+      </span>
+      <span class="indicator indicator--channel" title="Channel">
+        <img [src]="figmaAssets.channelIndicator" alt="Channel" />
+      </span>
+      <span class="indicator indicator--output" title="Output">
+        <img [src]="figmaAssets.outputIcon" alt="Output" />
+      </span>
+    </div>
+  </header>
+
+  <div class="mixer-layout">
+    <aside
+      class="device-column"
+      [style.--panel-image]="'url(' + figmaAssets.inputPanel + ')'"
+    >
+      <div class="device-chip-list">
+        @if (visibleInputDevices().length === 0) {
+        <button class="device-chip" type="button" disabled>
+          No input devices found
+        </button>
+        } @for (device of visibleInputDevices(); track device.id) {
+        <button
+          class="device-chip"
+          type="button"
+          [class.device-chip--selected]="selectedInputDeviceId() === device.id"
+          (click)="onInputDeviceChange(device.id)"
+        >
+          <span
+            class="chip-check"
+            [class.chip-check--visible]="selectedInputDeviceId() === device.id"
+            >✓</span
+          >
+          <span class="chip-label">{{ device.label }}</span>
+        </button>
         }
-      </mat-select>
-    </mat-form-field>
+      </div>
+    </aside>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Output Device</mat-label>
-      <mat-select
-        [value]="selectedOutputDeviceId()"
-        [disabled]="!capabilities().outputSelectionSupported"
-        (valueChange)="onOutputDeviceChange($event)"
-      >
-        @for (device of outputDevices(); track device.id) {
-        <mat-option [value]="device.id">{{ device.label }}</mat-option>
+    <section class="mixer-column">
+      <audio-audio-ui
+        [channels]="channels()"
+        (parameterChange)="onParameterChange($event)"
+      />
+
+      <div class="mixer-actions">
+        <button
+          class="outline-button"
+          type="button"
+          (click)="openSetupDialog()"
+        >
+          Setup Help
+        </button>
+        <p
+          class="routing-status"
+          [class.routing-status--ok]="outputRoutingStatus().state === 'applied'"
+          [class.routing-status--warn]="
+            outputRoutingStatus().state === 'unsupported' ||
+            outputRoutingStatus().state === 'failed'
+          "
+        >
+          {{ outputRoutingStateLabel() }}: {{ outputRoutingStatus().message }}
+        </p>
+      </div>
+    </section>
+
+    <aside
+      class="device-column device-column--output"
+      [style.--panel-image]="'url(' + figmaAssets.outputPanel + ')'"
+    >
+      <div class="device-chip-list">
+        @if (visibleOutputDevices().length === 0) {
+        <button class="device-chip" type="button" disabled>
+          No output devices found
+        </button>
+        } @for (device of visibleOutputDevices(); track device.id) {
+        <button
+          class="device-chip"
+          type="button"
+          [disabled]="!capabilities().outputSelectionSupported"
+          [class.device-chip--selected]="selectedOutputDeviceId() === device.id"
+          (click)="onOutputDeviceChange(device.id)"
+        >
+          <span
+            class="chip-check"
+            [class.chip-check--visible]="selectedOutputDeviceId() === device.id"
+            >✓</span
+          >
+          <span class="chip-label">{{ device.label }}</span>
+        </button>
         }
-      </mat-select>
-    </mat-form-field>
-
-    <button mat-stroked-button type="button" (click)="openSetupDialog()">
-      Setup Help
-    </button>
+      </div>
+    </aside>
   </div>
 
-  <p
-    class="routing-status"
-    [class.routing-status--ok]="outputRoutingStatus().state === 'applied'"
-    [class.routing-status--warn]="
-      outputRoutingStatus().state === 'unsupported' ||
-      outputRoutingStatus().state === 'failed'
-    "
+  <section
+    class="health-card"
+    [class.health-card--warn]="audioHealth().dropoutCount > 0"
+    [style.--health-outline]="'url(' + figmaAssets.healthOutline + ')'"
   >
-    <span
-      class="routing-state-pill"
-      [class.routing-state-pill--ok]="outputRoutingStatus().state === 'applied'"
-      [class.routing-state-pill--warn]="
-        outputRoutingStatus().state === 'unsupported' ||
-        outputRoutingStatus().state === 'failed'
-      "
-    >
-      {{ outputRoutingStateLabel() }}
-    </span>
-    {{ outputRoutingStatus().message }} @if (outputRoutingStatus().state !==
-    'default') {
+    <div class="health-icon" aria-hidden="true">
+      <img [src]="figmaAssets.healthIcon" alt="Health" />
+    </div>
+
+    <div class="health-copy">
+      <p>Latency: {{ healthLatencyLabel() }}</p>
+      <p>Dropouts: {{ audioHealth().dropoutCount }}</p>
+    </div>
+
     <button
-      class="health-reset-button"
+      class="health-reset"
+      type="button"
+      title="Reset health counters"
+      (click)="onResetHealthCounters()"
+    >
+      <img [src]="figmaAssets.restartIcon" alt="Reset" />
+    </button>
+
+    @if (outputRoutingStatus().state !== 'default') {
+    <button
+      class="outline-button"
       type="button"
       (click)="onResetOutputRouting()"
     >
       Reset Routing
     </button>
     }
-  </p>
-
-  <p
-    class="health-status"
-    [class.health-status--warn]="audioHealth().dropoutCount > 0"
-  >
-    <span class="health-state-pill">Health</span>
-    Latency: {{ healthLatencyLabel() }}
-    <span class="health-separator">|</span>
-    Dropouts: {{ audioHealth().dropoutCount }}
-    <button
-      class="health-reset-button"
-      type="button"
-      (click)="onResetHealthCounters()"
-    >
-      Reset Counters
-    </button>
-  </p>
+  </section>
 </section>
-
-<audio-audio-ui
-  [channels]="channels()"
-  (parameterChange)="onParameterChange($event)"
-/>

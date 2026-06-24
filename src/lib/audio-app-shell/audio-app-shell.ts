@@ -94,6 +94,17 @@ export class AudioAppShell implements OnInit, OnDestroy {
     dropoutCount: 0,
     estimatedLatencyMs: undefined,
   });
+  readonly figmaAssets = {
+    logo: '/assets/figma/logo.svg',
+    inputIcon: '/assets/figma/icon-input.svg',
+    outputIcon: '/assets/figma/icon-output.svg',
+    channelIndicator: '/assets/figma/icon-channel.svg',
+    healthIcon: '/assets/figma/icon-health.svg',
+    restartIcon: '/assets/figma/icon-restart.svg',
+    inputPanel: '/assets/figma/panel-input.png',
+    outputPanel: '/assets/figma/panel-output.png',
+    healthOutline: '/assets/figma/health-card-outline.svg',
+  };
 
   async ngOnInit(): Promise<void> {
     const initialSession = this.loadStoredSession() ?? this.currentSession();
@@ -337,5 +348,41 @@ export class AudioAppShell implements OnInit, OnDestroy {
     }
 
     return `${latencyMs.toFixed(1)} ms`;
+  }
+
+  visibleInputDevices(): AudioDeviceInfo[] {
+    return this.limitVisibleDevices(
+      this.inputDevices(),
+      this.selectedInputDeviceId(),
+    );
+  }
+
+  visibleOutputDevices(): AudioDeviceInfo[] {
+    return this.limitVisibleDevices(
+      this.outputDevices(),
+      this.selectedOutputDeviceId(),
+    );
+  }
+
+  private limitVisibleDevices(
+    devices: AudioDeviceInfo[],
+    selectedId: string,
+  ): AudioDeviceInfo[] {
+    const maxVisible = 4;
+    if (devices.length <= maxVisible) {
+      return devices;
+    }
+
+    const visible = devices.slice(0, maxVisible);
+    if (!selectedId || visible.some((device) => device.id === selectedId)) {
+      return visible;
+    }
+
+    const selectedDevice = devices.find((device) => device.id === selectedId);
+    if (!selectedDevice) {
+      return visible;
+    }
+
+    return [...visible.slice(0, maxVisible - 1), selectedDevice];
   }
 }
