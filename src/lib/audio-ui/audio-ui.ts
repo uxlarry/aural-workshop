@@ -21,20 +21,16 @@ import {
 export class AudioUi {
   readonly channels = input.required<MixerChannel[]>();
   readonly parameterChange = output<AudioParameterChange>();
-  private activeGainDrag:
-    | {
-        channelId: AudioChannelId;
-        pointerId: number;
-        trackElement: HTMLElement;
-      }
-    | null = null;
-  private activePanDrag:
-    | {
-        channelId: AudioChannelId;
-        pointerId: number;
-        trackElement: HTMLElement;
-      }
-    | null = null;
+  private activeGainDrag: {
+    channelId: AudioChannelId;
+    pointerId: number;
+    trackElement: HTMLElement;
+  } | null = null;
+  private activePanDrag: {
+    channelId: AudioChannelId;
+    pointerId: number;
+    trackElement: HTMLElement;
+  } | null = null;
   readonly figmaAssets = {
     mixerLevel: '/assets/figma/mixer-level.svg',
     gainIndicator: '/assets/figma/mixer-gain-indicator.svg',
@@ -128,7 +124,10 @@ export class AudioUi {
   }
 
   onPanDragMove(event: PointerEvent): void {
-    if (!this.activePanDrag || event.pointerId !== this.activePanDrag.pointerId) {
+    if (
+      !this.activePanDrag ||
+      event.pointerId !== this.activePanDrag.pointerId
+    ) {
       return;
     }
 
@@ -136,7 +135,10 @@ export class AudioUi {
   }
 
   onPanDragEnd(event: PointerEvent): void {
-    if (!this.activePanDrag || event.pointerId !== this.activePanDrag.pointerId) {
+    if (
+      !this.activePanDrag ||
+      event.pointerId !== this.activePanDrag.pointerId
+    ) {
       return;
     }
 
@@ -200,7 +202,10 @@ export class AudioUi {
       return;
     }
 
-    const progress = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+    const progress = Math.max(
+      0,
+      Math.min(1, (event.clientX - rect.left) / rect.width),
+    );
     const pan = progress * 2 - 1;
     this.onPanChange(this.activePanDrag.channelId, pan);
   }
@@ -227,7 +232,10 @@ export class AudioUi {
       return;
     }
 
-    const progress = Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height));
+    const progress = Math.max(
+      0,
+      Math.min(1, (event.clientY - rect.top) / rect.height),
+    );
     const gainDb = 12 - progress * 72;
     this.onGainChange(this.activeGainDrag.channelId, gainDb);
   }
