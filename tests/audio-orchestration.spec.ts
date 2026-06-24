@@ -52,6 +52,10 @@ class FakeAudioEngine implements AudioEngine {
     return;
   }
 
+  async resetOutputRouting(): Promise<void> {
+    return;
+  }
+
   getHealthSnapshot(): AudioHealthSnapshot {
     return { dropoutCount: 0, estimatedLatencyMs: 0 };
   }

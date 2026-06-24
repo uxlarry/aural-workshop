@@ -34,6 +34,7 @@ export interface AudioOrchestrationFacade {
   setInputDevice(deviceId: string): Promise<void>;
   setOutputDevice(deviceId: string): Promise<void>;
   resetHealthCounters(): void;
+  resetOutputRouting(): Promise<void>;
   getOutputRoutingStatus(): OutputRoutingStatus;
   stop(): Promise<void>;
 }
@@ -119,6 +120,10 @@ export class DefaultAudioOrchestrationFacade implements AudioOrchestrationFacade
 
   resetHealthCounters(): void {
     this.engine.resetHealthCounters();
+  }
+
+  async resetOutputRouting(): Promise<void> {
+    await this.engine.resetOutputRouting();
   }
 
   getOutputRoutingStatus(): OutputRoutingStatus {
