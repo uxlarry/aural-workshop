@@ -10,10 +10,23 @@ import {
 } from '@org/audio-model';
 import { getSelectedAudioDeviceIds } from '@org/audio-device';
 
+type SinkSelectableAudioElement = HTMLAudioElement & {
+  setSinkId?: (sinkId: string) => Promise<void>;
+};
+
+export interface OutputRoutingStatus {
+  state: 'default' | 'applied' | 'unsupported' | 'failed';
+  message: string;
+  deviceId?: string;
+}
+
 export interface AudioEngine {
   initialize(): Promise<void>;
   applySession(session: MixerSession): Promise<void>;
   applyParameterChange(change: AudioParameterChange): void;
+  setOutputDevice(deviceId: string): Promise<void>;
+  getSessionSnapshot(): MixerSession | null;
+  getOutputRoutingStatus(): OutputRoutingStatus;
   getHealthSnapshot(): AudioHealthSnapshot;
   dispose(): Promise<void>;
 }
@@ -25,15 +38,25 @@ function gainDbToLinear(gainDb: number): number {
 interface ChannelNodes {
   gain: GainNode;
   pan: StereoPannerNode;
+  meter: AnalyserNode;
+  meterBuffer: Float32Array<ArrayBuffer>;
 }
 
 export class BrowserAudioEngine implements AudioEngine {
   private audioContext: AudioContext | null = null;
   private mediaStream: MediaStream | null = null;
   private sourceNode: MediaStreamAudioSourceNode | null = null;
+  private monitorDestination: MediaStreamAudioDestinationNode | null = null;
+  private monitorElement: SinkSelectableAudioElement | null = null;
+  private selectedOutputDeviceId: string | null = null;
+  private outputRoutingStatus: OutputRoutingStatus = {
+    state: 'default',
+    message: 'Using system default output device.',
+  };
   private session: MixerSession = { channels: [] };
   private initialized = false;
   private readonly channelNodes = new Map<string, ChannelNodes>();
+  private meterTimer: ReturnType<typeof setInterval> | null = null;
   private readonly health: AudioHealthSnapshot = {
     dropoutCount: 0,
     estimatedLatencyMs: undefined,
@@ -80,6 +103,7 @@ export class BrowserAudioEngine implements AudioEngine {
 
     try {
       await this.rebuildGraph();
+      await this.applyOutputSinkSelection();
     } catch {
       // Keep app responsive even when media permissions or device state fail.
       this.health.dropoutCount += 1;
@@ -124,11 +148,29 @@ export class BrowserAudioEngine implements AudioEngine {
     );
   }
 
+  getSessionSnapshot(): MixerSession | null {
+    return this.cloneSession(this.session);
+  }
+
+  getOutputRoutingStatus(): OutputRoutingStatus {
+    return { ...this.outputRoutingStatus };
+  }
+
+  async setOutputDevice(deviceId: string): Promise<void> {
+    this.selectedOutputDeviceId = deviceId;
+    await this.applyOutputSinkSelection();
+  }
+
   getHealthSnapshot(): AudioHealthSnapshot {
     return { ...this.health };
   }
 
   async dispose(): Promise<void> {
+    if (this.meterTimer) {
+      clearInterval(this.meterTimer);
+      this.meterTimer = null;
+    }
+
     this.initialized = false;
     this.session = { channels: [] };
     this.channelNodes.clear();
@@ -137,6 +179,13 @@ export class BrowserAudioEngine implements AudioEngine {
       this.sourceNode.disconnect();
       this.sourceNode = null;
     }
+
+    if (this.monitorElement) {
+      this.monitorElement.srcObject = null;
+      this.monitorElement = null;
+    }
+
+    this.monitorDestination = null;
 
     if (this.mediaStream) {
       for (const track of this.mediaStream.getTracks()) {
@@ -156,6 +205,9 @@ export class BrowserAudioEngine implements AudioEngine {
     if (!context) {
       return;
     }
+
+    const { outputDeviceId } = getSelectedAudioDeviceIds();
+    this.selectedOutputDeviceId = outputDeviceId;
 
     const { inputDeviceId } = getSelectedAudioDeviceIds();
     const stream = await navigator.mediaDevices.getUserMedia({
@@ -197,6 +249,73 @@ export class BrowserAudioEngine implements AudioEngine {
     internalNodes.pan.connect(outputNodes.gain);
     outputNodes.gain.connect(outputNodes.pan);
     outputNodes.pan.connect(context.destination);
+
+    this.monitorDestination = context.createMediaStreamDestination();
+    outputNodes.pan.connect(this.monitorDestination);
+    this.ensureMonitorElement();
+
+    this.startMeterPolling();
+  }
+
+  private ensureMonitorElement(): void {
+    if (typeof document === 'undefined' || this.monitorElement) {
+      return;
+    }
+
+    const element = document.createElement(
+      'audio',
+    ) as SinkSelectableAudioElement;
+    element.autoplay = true;
+    element.muted = true;
+    element.setAttribute('playsinline', 'true');
+    this.monitorElement = element;
+  }
+
+  private async applyOutputSinkSelection(): Promise<void> {
+    if (!this.monitorElement || !this.monitorDestination) {
+      this.outputRoutingStatus = {
+        state: 'default',
+        message: 'Using system default output device.',
+      };
+      return;
+    }
+
+    this.monitorElement.srcObject = this.monitorDestination.stream;
+
+    const setSinkId = this.monitorElement.setSinkId;
+    if (!setSinkId) {
+      this.outputRoutingStatus = {
+        state: 'unsupported',
+        message: 'Output device selection is not supported in this browser.',
+      };
+      return;
+    }
+
+    if (!this.selectedOutputDeviceId) {
+      this.outputRoutingStatus = {
+        state: 'default',
+        message: 'Using system default output device.',
+      };
+      return;
+    }
+
+    try {
+      await setSinkId.call(this.monitorElement, this.selectedOutputDeviceId);
+      await this.monitorElement.play();
+      this.outputRoutingStatus = {
+        state: 'applied',
+        message: 'Output device applied successfully.',
+        deviceId: this.selectedOutputDeviceId,
+      };
+    } catch {
+      // Browser/device policy may reject sink switches; keep default output.
+      this.outputRoutingStatus = {
+        state: 'failed',
+        message:
+          'Could not apply selected output device. Falling back to default output.',
+        deviceId: this.selectedOutputDeviceId,
+      };
+    }
   }
 
   private createChannelNodes(channel: MixerChannel): ChannelNodes {
@@ -207,12 +326,89 @@ export class BrowserAudioEngine implements AudioEngine {
 
     const gain = context.createGain();
     const pan = context.createStereoPanner();
+    const meter = context.createAnalyser();
+    meter.fftSize = 1024;
+    meter.smoothingTimeConstant = 0.8;
+
     gain.gain.value = this.computeEffectiveLinearGain(channel);
     pan.pan.value = channel.pan;
+    pan.connect(meter);
 
-    const nodes = { gain, pan };
+    const nodes = {
+      gain,
+      pan,
+      meter,
+      meterBuffer: new Float32Array(
+        new ArrayBuffer(meter.fftSize * Float32Array.BYTES_PER_ELEMENT),
+      ),
+    };
     this.channelNodes.set(channel.id, nodes);
     return nodes;
+  }
+
+  private startMeterPolling(): void {
+    if (this.meterTimer) {
+      clearInterval(this.meterTimer);
+    }
+
+    this.meterTimer = setInterval(() => {
+      if (this.channelNodes.size === 0 || this.session.channels.length === 0) {
+        return;
+      }
+
+      const meterByChannelId = new Map<
+        string,
+        { peakDb: number; rmsDb: number; clipping: boolean }
+      >();
+
+      for (const [channelId, nodes] of this.channelNodes.entries()) {
+        nodes.meter.getFloatTimeDomainData(nodes.meterBuffer);
+
+        let peak = 0;
+        let sumSquares = 0;
+        for (let i = 0; i < nodes.meterBuffer.length; i += 1) {
+          const sample = nodes.meterBuffer[i];
+          const abs = Math.abs(sample);
+          if (abs > peak) {
+            peak = abs;
+          }
+          sumSquares += sample * sample;
+        }
+
+        const rms = Math.sqrt(sumSquares / nodes.meterBuffer.length);
+        meterByChannelId.set(channelId, {
+          peakDb: this.linearToDb(peak),
+          rmsDb: this.linearToDb(rms),
+          clipping: peak >= 0.995,
+        });
+      }
+
+      this.session = {
+        ...this.session,
+        channels: this.session.channels.map((channel) => ({
+          ...channel,
+          meter: meterByChannelId.get(channel.id),
+        })),
+      };
+    }, 120);
+  }
+
+  private linearToDb(value: number): number {
+    if (!Number.isFinite(value) || value <= 0) {
+      return -100;
+    }
+
+    return 20 * Math.log10(Math.max(value, 0.00001));
+  }
+
+  private cloneSession(session: MixerSession): MixerSession {
+    return {
+      sampleRate: session.sampleRate,
+      channels: session.channels.map((channel) => ({
+        ...channel,
+        meter: channel.meter ? { ...channel.meter } : undefined,
+      })),
+    };
   }
 
   private findChannelByType(type: MixerChannel['type']): MixerChannel | null {
@@ -296,6 +492,28 @@ export class NoopAudioEngine implements AudioEngine {
 
   getHealthSnapshot(): AudioHealthSnapshot {
     return { ...this.health };
+  }
+
+  getSessionSnapshot(): MixerSession | null {
+    return {
+      sampleRate: this.session.sampleRate,
+      channels: this.session.channels.map((channel) => ({
+        ...channel,
+        meter: channel.meter ? { ...channel.meter } : undefined,
+      })),
+    };
+  }
+
+  getOutputRoutingStatus(): OutputRoutingStatus {
+    return {
+      state: 'unsupported',
+      message: 'Output routing is unavailable in the no-op engine.',
+    };
+  }
+
+  async setOutputDevice(deviceId: string): Promise<void> {
+    void deviceId;
+    return;
   }
 
   async dispose(): Promise<void> {
