@@ -3,6 +3,17 @@
   <article class="channel-strip">
     <header class="channel-title">{{ channel.label }}</header>
 
+    <div class="meter-wrap" aria-label="Signal level meter">
+      <div
+        class="meter-fill"
+        [class.meter-clipping]="channel.meter?.clipping"
+        [style.width.%]="(channel.meter?.peakDb ?? -100) <= -60 ? 0 : (((channel.meter?.peakDb ?? -100) + 60) / 60) * 100"
+      ></div>
+    </div>
+    <div class="meter-readout">
+      Peak: {{ channel.meter?.peakDb ?? -100 | number: '1.0-1' }} dB
+    </div>
+
     <label class="channel-control" [for]="channel.id + '-gain'">
       Gain (dB)
     </label>
