@@ -22,10 +22,9 @@ import {
   OutputRoutingStatus,
   createDefaultAudioOrchestration,
 } from '@org/audio-orchestration';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import {
   AudioSetupDialog,
@@ -42,10 +41,9 @@ const SHOW_DIAGNOSTICS_STORAGE_KEY = 'bbloop.show-diagnostics.v1';
   imports: [
     CommonModule,
     AudioUi,
-    MatFormFieldModule,
-    MatSelectModule,
     MatButtonModule,
     MatIconModule,
+    MatMenuModule,
     MatDialogModule,
   ],
   templateUrl: './audio-app-shell.html',
@@ -109,11 +107,7 @@ export class AudioAppShell implements OnInit, OnDestroy {
   });
   readonly figmaAssets = {
     logo: '/assets/figma/logo.svg',
-    inputIcon: '/assets/figma/icon-input.svg',
-    outputIcon: '/assets/figma/icon-output.svg',
     channelIndicator: '/assets/figma/icon-channel.svg',
-    inputPanel: '/assets/figma/panel-input.png',
-    outputPanel: '/assets/figma/panel-output.png',
   };
 
   async ngOnInit(): Promise<void> {
@@ -136,9 +130,11 @@ export class AudioAppShell implements OnInit, OnDestroy {
     this.inputDevices.set(
       devices.filter((device) => device.kind === 'audioinput'),
     );
+    this.syncSelectedInputDevice();
     this.outputDevices.set(
       devices.filter((device) => device.kind === 'audiooutput'),
     );
+    this.syncSelectedOutputDevice();
     this.outputRoutingStatus.set(
       this.withOutputDeviceLabel(this.orchestration.getOutputRoutingStatus()),
     );
@@ -156,17 +152,11 @@ export class AudioAppShell implements OnInit, OnDestroy {
     this.inputDevices.set(
       devices.filter((device) => device.kind === 'audioinput'),
     );
+    this.syncSelectedInputDevice();
     this.outputDevices.set(
       devices.filter((device) => device.kind === 'audiooutput'),
     );
-
-    const currentInputId = this.selectedInputDeviceId();
-    const inputStillPresent =
-      currentInputId === '' ||
-      this.inputDevices().some((device) => device.id === currentInputId);
-    if (!inputStillPresent) {
-      this.selectedInputDeviceId.set('');
-    }
+    this.syncSelectedOutputDevice();
 
     const currentOutputId = this.selectedOutputDeviceId();
     const outputStillPresent =
@@ -471,39 +461,37 @@ export class AudioAppShell implements OnInit, OnDestroy {
     return `${latencyMs.toFixed(1)} ms`;
   }
 
-  visibleInputDevices(): AudioDeviceInfo[] {
-    return this.limitVisibleDevices(
-      this.inputDevices(),
-      this.selectedInputDeviceId(),
-    );
+  private syncSelectedInputDevice(): void {
+    const devices = this.inputDevices();
+    if (devices.length === 0) {
+      this.selectedInputDeviceId.set('');
+      return;
+    }
+
+    const currentSelectionId = this.selectedInputDeviceId();
+    if (devices.some((device) => device.id === currentSelectionId)) {
+      return;
+    }
+
+    const defaultDevice =
+      devices.find((device) => device.id === 'default') ?? devices[0];
+    this.selectedInputDeviceId.set(defaultDevice.id);
   }
 
-  visibleOutputDevices(): AudioDeviceInfo[] {
-    return this.limitVisibleDevices(
-      this.outputDevices(),
-      this.selectedOutputDeviceId(),
-    );
-  }
-
-  private limitVisibleDevices(
-    devices: AudioDeviceInfo[],
-    selectedId: string,
-  ): AudioDeviceInfo[] {
-    const maxVisible = 4;
-    if (devices.length <= maxVisible) {
-      return devices;
+  private syncSelectedOutputDevice(): void {
+    const devices = this.outputDevices();
+    if (devices.length === 0) {
+      this.selectedOutputDeviceId.set('');
+      return;
     }
 
-    const visible = devices.slice(0, maxVisible);
-    if (!selectedId || visible.some((device) => device.id === selectedId)) {
-      return visible;
+    const currentSelectionId = this.selectedOutputDeviceId();
+    if (devices.some((device) => device.id === currentSelectionId)) {
+      return;
     }
 
-    const selectedDevice = devices.find((device) => device.id === selectedId);
-    if (!selectedDevice) {
-      return visible;
-    }
-
-    return [...visible.slice(0, maxVisible - 1), selectedDevice];
+    const defaultDevice =
+      devices.find((device) => device.id === 'default') ?? devices[0];
+    this.selectedOutputDeviceId.set(defaultDevice.id);
   }
 }

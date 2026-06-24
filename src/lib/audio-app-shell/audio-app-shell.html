@@ -14,47 +14,76 @@
       <mat-icon>settings</mat-icon>
     </button>
 
-    <div class="header-indicators" aria-hidden="true">
-      <span class="indicator indicator--input" title="Input">
-        <img [src]="figmaAssets.inputIcon" alt="Input" />
-      </span>
+    <div class="header-indicators">
+      <button
+        class="indicator indicator--input indicator-button"
+        mat-icon-button
+        type="button"
+        aria-label="Select input device"
+        [matMenuTriggerFor]="inputDeviceMenu"
+      >
+        <mat-icon>input</mat-icon>
+      </button>
       <span class="indicator indicator--channel" title="Channel">
         <img [src]="figmaAssets.channelIndicator" alt="Channel" />
       </span>
-      <span class="indicator indicator--output" title="Output">
-        <img [src]="figmaAssets.outputIcon" alt="Output" />
-      </span>
+      <button
+        class="indicator indicator--output indicator-button"
+        mat-icon-button
+        type="button"
+        aria-label="Select output device"
+        [disabled]="!capabilities().outputSelectionSupported"
+        [matMenuTriggerFor]="outputDeviceMenu"
+      >
+        <mat-icon>output</mat-icon>
+      </button>
     </div>
+
+    <mat-menu #inputDeviceMenu="matMenu" xPosition="before">
+      @if (inputDevices().length === 0) {
+      <button mat-menu-item disabled>No input devices found</button>
+      } @for (device of inputDevices(); track device.id) {
+      <button
+        mat-menu-item
+        type="button"
+        [class.input-device-menu-item--selected]="
+          selectedInputDeviceId() === device.id
+        "
+        (click)="onInputDeviceChange(device.id)"
+      >
+        <mat-icon>
+          {{ selectedInputDeviceId() === device.id ? 'radio_button_checked' :
+          'radio_button_unchecked' }}
+        </mat-icon>
+        <span>{{ device.label }}</span>
+      </button>
+      }
+    </mat-menu>
+
+    <mat-menu #outputDeviceMenu="matMenu" xPosition="before">
+      @if (outputDevices().length === 0) {
+      <button mat-menu-item disabled>No output devices found</button>
+      } @for (device of outputDevices(); track device.id) {
+      <button
+        mat-menu-item
+        type="button"
+        [disabled]="!capabilities().outputSelectionSupported"
+        [class.input-device-menu-item--selected]="
+          selectedOutputDeviceId() === device.id
+        "
+        (click)="onOutputDeviceChange(device.id)"
+      >
+        <mat-icon>
+          {{ selectedOutputDeviceId() === device.id ? 'radio_button_checked' :
+          'radio_button_unchecked' }}
+        </mat-icon>
+        <span>{{ device.label }}</span>
+      </button>
+      }
+    </mat-menu>
   </header>
 
   <div class="mixer-layout">
-    <aside
-      class="device-column"
-      [style.--panel-image]="'url(' + figmaAssets.inputPanel + ')'"
-    >
-      <div class="device-chip-list">
-        @if (visibleInputDevices().length === 0) {
-        <button class="device-chip" type="button" disabled>
-          No input devices found
-        </button>
-        } @for (device of visibleInputDevices(); track device.id) {
-        <button
-          class="device-chip"
-          type="button"
-          [class.device-chip--selected]="selectedInputDeviceId() === device.id"
-          (click)="onInputDeviceChange(device.id)"
-        >
-          <span
-            class="chip-check"
-            [class.chip-check--visible]="selectedInputDeviceId() === device.id"
-            >✓</span
-          >
-          <span class="chip-label">{{ device.label }}</span>
-        </button>
-        }
-      </div>
-    </aside>
-
     <section class="mixer-column">
       <audio-audio-ui
         [channels]="channels()"
@@ -81,34 +110,6 @@
         </p>
       </div>
     </section>
-
-    <aside
-      class="device-column device-column--output"
-      [style.--panel-image]="'url(' + figmaAssets.outputPanel + ')'"
-    >
-      <div class="device-chip-list">
-        @if (visibleOutputDevices().length === 0) {
-        <button class="device-chip" type="button" disabled>
-          No output devices found
-        </button>
-        } @for (device of visibleOutputDevices(); track device.id) {
-        <button
-          class="device-chip"
-          type="button"
-          [disabled]="!capabilities().outputSelectionSupported"
-          [class.device-chip--selected]="selectedOutputDeviceId() === device.id"
-          (click)="onOutputDeviceChange(device.id)"
-        >
-          <span
-            class="chip-check"
-            [class.chip-check--visible]="selectedOutputDeviceId() === device.id"
-            >✓</span
-          >
-          <span class="chip-label">{{ device.label }}</span>
-        </button>
-        }
-      </div>
-    </aside>
   </div>
 
   @if (showDiagnostics()) {

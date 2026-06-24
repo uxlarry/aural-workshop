@@ -59,6 +59,21 @@
   background: transparent;
 }
 
+.indicator-button {
+  pointer-events: auto;
+  color: var(--color-app-fg);
+}
+
+.indicator-button:hover {
+  background: var(--color-overlay-subtle);
+}
+
+.indicator-button .mat-icon {
+  width: 30px;
+  height: 30px;
+  font-size: 30px;
+}
+
 .indicator img {
   width: 48px;
   height: 48px;
@@ -70,77 +85,13 @@
   overflow: hidden;
 }
 
+.input-device-menu-item--selected {
+  font-weight: 600;
+}
+
 .mixer-layout {
   position: absolute;
   inset: 0;
-}
-
-.device-column {
-  position: absolute;
-  width: 280px;
-}
-
-.device-column::before {
-  content: none;
-}
-
-.device-chip-list {
-  position: relative;
-  display: grid;
-  gap: 11px;
-  margin-top: 0;
-}
-
-.device-chip {
-  width: 100%;
-  min-height: 33px;
-  padding: 6px 12px;
-  border-radius: 16px;
-  border: 1px solid var(--color-outline);
-  background: var(--color-chip-bg);
-  color: var(--color-app-fg);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  text-align: left;
-  font-size: 0.84rem;
-  line-height: 20px;
-}
-
-.device-chip:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.device-chip--selected {
-  border-color: var(--color-chip-selected-bg);
-  background: var(--color-chip-selected-bg);
-  border-radius: 8px;
-  color: var(--color-chip-selected-fg);
-}
-
-.device-chip--selected .chip-label {
-  color: var(--color-chip-selected-fg);
-}
-
-.device-chip--selected .chip-check {
-  color: var(--color-chip-selected-fg);
-}
-
-.chip-check {
-  width: 14px;
-  opacity: 0;
-}
-
-.chip-check--visible {
-  opacity: 1;
-}
-
-.chip-label {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .mixer-actions {
@@ -265,16 +216,6 @@
   background: var(--color-overlay-hover);
 }
 
-.device-column {
-  left: 40px;
-  top: 231px;
-}
-
-.device-column--output {
-  left: 976px;
-  top: 231px;
-}
-
 .mixer-column {
   position: absolute;
   left: 360px;
@@ -322,9 +263,7 @@
     max-width: 420px;
   }
 
-  .mixer-column,
-  .device-column,
-  .device-column--output {
+  .mixer-column {
     position: static;
     width: 100%;
   }
