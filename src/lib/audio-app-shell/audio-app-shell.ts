@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
+  AudioHealthSnapshot,
   AudioDeviceInfo,
   AudioParameterChange,
   DeviceCapabilities,
@@ -89,6 +90,10 @@ export class AudioAppShell implements OnInit, OnDestroy {
     state: 'default',
     message: 'Using system default output device.',
   });
+  readonly audioHealth = signal<AudioHealthSnapshot>({
+    dropoutCount: 0,
+    estimatedLatencyMs: undefined,
+  });
 
   async ngOnInit(): Promise<void> {
     const initialSession = this.loadStoredSession() ?? this.currentSession();
@@ -96,6 +101,7 @@ export class AudioAppShell implements OnInit, OnDestroy {
 
     await this.orchestration.start(initialSession);
     this.outputRoutingStatus.set(this.orchestration.getOutputRoutingStatus());
+    this.audioHealth.set(this.orchestration.readHealth());
     this.startMeterRefreshLoop();
 
     const capabilities = await this.orchestration.getCapabilities();
@@ -148,6 +154,11 @@ export class AudioAppShell implements OnInit, OnDestroy {
     void this.applyOutputDeviceSelection(deviceId);
   }
 
+  onResetHealthCounters(): void {
+    this.orchestration.resetHealthCounters();
+    this.audioHealth.set(this.orchestration.readHealth());
+  }
+
   openSetupDialog(): void {
     this.dialog.open(AudioSetupDialog, {
       data: {
@@ -172,6 +183,7 @@ export class AudioAppShell implements OnInit, OnDestroy {
       }
 
       this.channels.set(session.channels);
+      this.audioHealth.set(this.orchestration.readHealth());
     }, 150);
   }
 
@@ -276,5 +288,14 @@ export class AudioAppShell implements OnInit, OnDestroy {
     }
 
     return 'Default';
+  }
+
+  healthLatencyLabel(): string {
+    const latencyMs = this.audioHealth().estimatedLatencyMs;
+    if (typeof latencyMs !== 'number' || !Number.isFinite(latencyMs)) {
+      return 'n/a';
+    }
+
+    return `${latencyMs.toFixed(1)} ms`;
   }
 }

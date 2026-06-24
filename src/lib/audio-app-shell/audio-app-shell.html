@@ -52,6 +52,23 @@
     </span>
     {{ outputRoutingStatus().message }}
   </p>
+
+  <p
+    class="health-status"
+    [class.health-status--warn]="audioHealth().dropoutCount > 0"
+  >
+    <span class="health-state-pill">Health</span>
+    Latency: {{ healthLatencyLabel() }}
+    <span class="health-separator">|</span>
+    Dropouts: {{ audioHealth().dropoutCount }}
+    <button
+      class="health-reset-button"
+      type="button"
+      (click)="onResetHealthCounters()"
+    >
+      Reset Counters
+    </button>
+  </p>
 </section>
 
 <audio-audio-ui

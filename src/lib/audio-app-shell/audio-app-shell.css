@@ -56,3 +56,46 @@
   color: #8a3b00;
   background: #fff3e8;
 }
+
+.health-status {
+  margin: 8px 2px 0;
+  font-size: 0.85rem;
+  color: #4a4a4a;
+}
+
+.health-status--warn {
+  color: #8a3b00;
+}
+
+.health-state-pill {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid #909090;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #4a4a4a;
+  background: #ffffff;
+  vertical-align: middle;
+}
+
+.health-separator {
+  margin: 0 8px;
+  color: #888888;
+}
+
+.health-reset-button {
+  margin-left: 10px;
+  padding: 2px 8px;
+  border: 1px solid #b5b5b5;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #4a4a4a;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.health-reset-button:hover {
+  background: #f3f3f3;
+}
