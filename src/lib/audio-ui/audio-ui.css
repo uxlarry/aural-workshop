@@ -36,7 +36,7 @@
 
 .channel-control {
   font-size: 0.76rem;
-  color: #d8d8d8;
+  color: var(--color-control-muted);
 }
 
 .mixer-visual {
@@ -106,8 +106,8 @@
   height: 32.58px;
   transform: translateX(-50%);
   border-radius: 16.29px;
-  background: #ffffff;
-  box-shadow: 0 1px 2px rgb(0 0 0 / 35%);
+  background: var(--color-fader-knob-bg);
+  box-shadow: 0 1px 2px var(--color-shadow);
   display: grid;
   place-items: center;
   transition: top 90ms linear;
@@ -116,7 +116,7 @@
 .gain-control-line {
   width: 82%;
   height: 1px;
-  background: #000000;
+  background: var(--color-fader-knob-fg);
 }
 
 .pan-indicator {
@@ -135,6 +135,12 @@
   width: 24.5%;
   z-index: 12;
   transition: left 120ms ease-out;
+}
+
+:host-context(.theme-light) .mixer-level,
+:host-context(.theme-light) .pan-indicator,
+:host-context(.theme-light) .pan-control {
+  filter: invert(1);
 }
 
 .pan-drag-track {
@@ -203,7 +209,9 @@
   place-items: center;
   padding: 0;
   cursor: pointer;
-  color: #ffffff; /* default rectangle fill via currentColor */
+  color: var(
+    --color-toggle-default
+  ); /* default rectangle fill via currentColor */
 }
 
 .toggle-image svg {
@@ -243,7 +251,7 @@
 
 output {
   font-size: 0.72rem;
-  color: #d0d0d0;
+  color: var(--color-control-soft);
 }
 
 @media (max-width: 980px) {
