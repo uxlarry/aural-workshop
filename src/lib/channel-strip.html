@@ -50,18 +50,34 @@
     </section>
     }
 
-    <div
-      class="level-meter"
-      [class.level-meter--clipping]="channel().meter?.clipping"
-      role="meter"
-      [attr.aria-valuenow]="channel().meter?.peakDb ?? -100"
-      aria-valuemin="-60"
-      aria-valuemax="0"
-    >
+    <div class="level-meters" role="meter">
       <div
-        class="level-meter__fill"
-        [style.clip-path]="'inset(' + (100 - meterFillPct(channel().meter?.peakDb)) + '% 0 0 0)'"
-      ></div>
+        class="level-meter level-meter--left"
+        [class.level-meter--clipping]="channel().meter?.clipping || (channel().meter?.leftDb ?? -100) >= 0"
+        [attr.aria-valuenow]="channel().meter?.leftDb ?? -100"
+        aria-valuemin="-60"
+        aria-valuemax="0"
+        aria-label="Left channel level"
+      >
+        <div
+          class="level-meter__fill"
+          [style.clip-path]="'inset(' + (100 - meterFillPct(channel().meter?.leftDb)) + '% 0 0 0)'"
+        ></div>
+      </div>
+
+      <div
+        class="level-meter level-meter--right"
+        [class.level-meter--clipping]="channel().meter?.clipping || (channel().meter?.rightDb ?? -100) >= 0"
+        [attr.aria-valuenow]="channel().meter?.rightDb ?? -100"
+        aria-valuemin="-60"
+        aria-valuemax="0"
+        aria-label="Right channel level"
+      >
+        <div
+          class="level-meter__fill"
+          [style.clip-path]="'inset(' + (100 - meterFillPct(channel().meter?.rightDb)) + '% 0 0 0)'"
+        ></div>
+      </div>
     </div>
 
     <section class="fader-level" aria-hidden="true">

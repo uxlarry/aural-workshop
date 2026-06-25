@@ -150,17 +150,26 @@
     box-shadow 160ms ease;
 }
 
-.level-meter {
+.level-meters {
   position: absolute;
-  left: 40.8%;
-  width: 18.8%;
+  left: 27.5%;
+  width: 45%;
   top: var(--fader-top);
   height: var(--fader-height);
-  z-index: 11;
+  z-index: 9;
+  display: flex;
+  gap: 24px;
+}
+
+.level-meter {
+  position: relative;
+  flex: 1;
   border-radius: 3px;
   overflow: hidden;
   display: flex;
   align-items: flex-end;
+  border: 1px solid var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.2));
+  background: var(--mat-sys-surface-dim, rgba(0, 0, 0, 0.05));
 }
 
 .level-meter__fill {
