@@ -28,6 +28,8 @@ export interface AudioLevelState {
   peakDb: number;
   rmsDb?: number;
   clipping: boolean;
+  leftDb?: number;
+  rightDb?: number;
 }
 
 export interface MixerChannel {
