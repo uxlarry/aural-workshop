@@ -24,9 +24,14 @@
       >
         <mat-icon>input</mat-icon>
       </button>
-      <span class="indicator indicator--channel" title="Channel">
-        <img [src]="figmaAssets.channelIndicator" alt="Channel" />
-      </span>
+      <button
+        class="indicator indicator--channel indicator-button"
+        mat-icon-button
+        type="button"
+        aria-label="Channel indicator"
+      >
+        <mat-icon color="primary">circle</mat-icon>
+      </button>
       <button
         class="indicator indicator--output indicator-button"
         mat-icon-button
@@ -88,6 +93,7 @@
       <audio-audio-ui
         [channels]="channels()"
         (parameterChange)="onParameterChange($event)"
+        (effectSelected)="onEffectSelected($event)"
       />
 
       <div class="mixer-actions">
@@ -214,6 +220,13 @@
                   <button
                     class="outline-button"
                     type="button"
+                    (click)="openEffectSettings('virtual-amp', effect.id)"
+                  >
+                    Settings
+                  </button>
+                  <button
+                    class="outline-button"
+                    type="button"
                     (click)="moveEffect(effect.id, -1)"
                     [disabled]="idx === 0"
                   >
@@ -242,39 +255,6 @@
                     Remove
                   </button>
                 </div>
-              </div>
-
-              <div class="effect-item__parameters">
-                <label>
-                  <span> Mix: {{ effect.mix | number: '1.2-2' }} </span>
-                  <input
-                    type="range"
-                    min="0"
-                    max="1"
-                    step="0.01"
-                    [value]="effect.mix"
-                    (input)="setEffectMix(effect.id, +$any($event.target).value)"
-                  />
-                </label>
-
-                @for (parameterMeta of effectUiParameters(effect.type); track
-                parameterMeta.parameter) {
-                <label>
-                  <span>
-                    {{ parameterMeta.label }}: {{ effectParameterValue(effect,
-                    parameterMeta.parameter, parameterMeta.min) | number:
-                    '1.0-2' }}
-                  </span>
-                  <input
-                    type="range"
-                    [min]="parameterMeta.min"
-                    [max]="parameterMeta.max"
-                    [step]="parameterMeta.step"
-                    [value]="effectParameterValue(effect, parameterMeta.parameter, parameterMeta.min)"
-                    (input)="setEffectParameter(effect.id, parameterMeta.parameter, +$any($event.target).value)"
-                  />
-                </label>
-                }
               </div>
             </li>
             }

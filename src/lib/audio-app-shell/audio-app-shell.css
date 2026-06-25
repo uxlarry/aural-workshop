@@ -255,23 +255,6 @@
   justify-content: flex-end;
 }
 
-.effect-item__parameters {
-  margin-top: 8px;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 8px;
-}
-
-.effect-item__parameters label {
-  display: grid;
-  gap: 4px;
-  font-size: 0.82rem;
-}
-
-.effect-item__parameters input[type='range'] {
-  width: 100%;
-}
-
 .health-card {
   position: absolute;
   left: 986px;

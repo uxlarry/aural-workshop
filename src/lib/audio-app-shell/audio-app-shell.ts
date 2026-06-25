@@ -20,7 +20,7 @@ import {
   MixerSession,
   createDefaultMixerEffect,
 } from '@org/audio-model';
-import { AudioUi } from '@org/audio-ui';
+import { AudioUi, EffectSelection } from '@org/audio-ui';
 import {
   AudioOrchestrationFacade,
   OutputRoutingStatus,
@@ -35,19 +35,15 @@ import {
   AudioSetupDialogResult,
   AudioTheme,
 } from './audio-setup-dialog';
+import {
+  EffectParameterUiMeta,
+  EffectSettingsDialog,
+} from './effect-settings-dialog';
 
 const SESSION_STORAGE_KEY = 'bbloop.mixer.session.v1';
 const THEME_STORAGE_KEY = 'bbloop.theme.v1';
 const SHOW_DIAGNOSTICS_STORAGE_KEY = 'bbloop.show-diagnostics.v1';
 const EFFECT_PRESETS_STORAGE_KEY = 'bbloop.effects.presets.v1';
-
-interface EffectParameterUiMeta {
-  parameter: MixerEffectParameterName;
-  label: string;
-  min: number;
-  max: number;
-  step: number;
-}
 
 interface EffectChainPreset {
   name: string;
@@ -301,6 +297,43 @@ export class AudioAppShell implements OnInit, OnDestroy {
 
   effectUiParameters(effectType: MixerEffectType): EffectParameterUiMeta[] {
     return EFFECT_PARAMETERS[effectType];
+  }
+
+  onEffectSelected(selection: EffectSelection): void {
+    this.openEffectSettings(selection.channelId, selection.effectId);
+  }
+
+  openEffectSettings(channelId: string, effectId: string): void {
+    const targetChannel = this.channels().find(
+      (channel) => channel.id === channelId,
+    );
+    if (!targetChannel) {
+      return;
+    }
+
+    const effect = (targetChannel.effects ?? []).find(
+      (item) => item.id === effectId,
+    );
+    if (!effect) {
+      return;
+    }
+
+    this.dialog.open(EffectSettingsDialog, {
+      data: {
+        effect,
+        effectTypeLabel: this.effectTypeLabel(effect.type),
+        parameterMeta: this.effectUiParameters(effect.type),
+        onBypassedChange: (bypassed: boolean) =>
+          this.setEffectBypassed(effect.id, bypassed),
+        onMixChange: (mix: number) => this.setEffectMix(effect.id, mix),
+        onParameterChange: (
+          parameter: MixerEffectParameterName,
+          value: number,
+        ) => this.setEffectParameter(effect.id, parameter, value),
+      },
+      width: '420px',
+      autoFocus: false,
+    });
   }
 
   hasVirtualAmpEffects(): boolean {
