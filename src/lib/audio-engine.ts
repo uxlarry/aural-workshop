@@ -1,5 +1,6 @@
 import {
   AudioHealthSnapshot,
+  MixerEffect,
   AudioParameterChange,
   MixerChannel,
   MixerSession,
@@ -42,6 +43,26 @@ interface ChannelNodes {
   pan: StereoPannerNode;
   meter: AnalyserNode;
   meterBuffer: Float32Array<ArrayBuffer>;
+}
+
+interface EffectNodeChain {
+  input: AudioNode;
+  output: AudioNode;
+}
+
+export function resolveActiveEffects(effects: MixerEffect[]): MixerEffect[] {
+  return effects.filter((effect) => !effect.bypassed);
+}
+
+export function resolveChainEffects(
+  effects: MixerEffect[],
+  effectsEnabled: boolean,
+): MixerEffect[] {
+  if (!effectsEnabled) {
+    return [];
+  }
+
+  return resolveActiveEffects(effects);
 }
 
 export class BrowserAudioEngine implements AudioEngine {
@@ -283,11 +304,16 @@ export class BrowserAudioEngine implements AudioEngine {
     const inputNodes = this.createChannelNodes(inputChannel);
     const internalNodes = this.createChannelNodes(internalChannel);
     const outputNodes = this.createChannelNodes(outputChannel);
+    const internalEffects = this.buildEffectChain(
+      internalChannel.effects ?? [],
+      internalChannel.effectsEnabled !== false,
+      internalNodes.gain,
+    );
 
     this.sourceNode.connect(inputNodes.gain);
     inputNodes.gain.connect(inputNodes.pan);
     inputNodes.pan.connect(internalNodes.gain);
-    internalNodes.gain.connect(internalNodes.pan);
+    internalEffects.output.connect(internalNodes.pan);
     internalNodes.pan.connect(outputNodes.gain);
     outputNodes.gain.connect(outputNodes.pan);
     outputNodes.pan.connect(context.destination);
@@ -386,6 +412,111 @@ export class BrowserAudioEngine implements AudioEngine {
     };
     this.channelNodes.set(channel.id, nodes);
     return nodes;
+  }
+
+  private buildEffectChain(
+    effects: MixerEffect[],
+    effectsEnabled: boolean,
+    sourceNode: AudioNode,
+  ): EffectNodeChain {
+    const context = this.audioContext;
+    if (!context || effects.length === 0) {
+      return {
+        input: sourceNode,
+        output: sourceNode,
+      };
+    }
+
+    let tail = sourceNode;
+    for (const effect of resolveChainEffects(effects, effectsEnabled)) {
+      const effectNode = this.createEffectNode(effect, context);
+      if (!effectNode) {
+        continue;
+      }
+
+      tail.connect(effectNode.input);
+      tail = effectNode.output;
+    }
+
+    return {
+      input: sourceNode,
+      output: tail,
+    };
+  }
+
+  private createEffectNode(
+    effect: MixerEffect,
+    context: AudioContext,
+  ): EffectNodeChain | null {
+    const effectMix = Math.max(0, Math.min(1, effect.mix));
+    const input = context.createGain();
+    const dryGain = context.createGain();
+    const wetGain = context.createGain();
+    dryGain.gain.value = 1 - effectMix;
+    wetGain.gain.value = effectMix;
+    const output = context.createGain();
+
+    input.connect(dryGain);
+    input.connect(wetGain);
+
+    const wireDryWet = (effectInput: AudioNode, effectOutput: AudioNode) => {
+      dryGain.connect(output);
+      wetGain.connect(effectInput);
+      effectOutput.connect(output);
+
+      return {
+        input,
+        output,
+      };
+    };
+
+    if (effect.type === 'highpass' || effect.type === 'lowpass') {
+      const filter = context.createBiquadFilter();
+      filter.type = effect.type;
+      const frequencyHz = effect.parameters.frequencyHz ?? 650;
+      const q = effect.parameters.q ?? 0.707;
+      filter.frequency.value = Math.max(40, Math.min(18_000, frequencyHz));
+      filter.Q.value = Math.max(0.1, Math.min(20, q));
+      return wireDryWet(filter, filter);
+    }
+
+    if (effect.type === 'distortion') {
+      const amount = Math.max(0, Math.min(1, effect.parameters.amount ?? 0.35));
+      const shaper = context.createWaveShaper();
+      shaper.curve = this.createDistortionCurve(amount);
+      shaper.oversample = '2x';
+      return wireDryWet(shaper, shaper);
+    }
+
+    if (effect.type === 'compressor') {
+      const compressor = context.createDynamicsCompressor();
+      const thresholdDb = effect.parameters.thresholdDb ?? -24;
+      const ratio = effect.parameters.ratio ?? 4;
+      compressor.threshold.value = Math.max(-90, Math.min(0, thresholdDb));
+      compressor.ratio.value = Math.max(1, Math.min(20, ratio));
+      compressor.attack.value = 0.003;
+      compressor.release.value = 0.2;
+
+      return wireDryWet(compressor, compressor);
+    }
+
+    return null;
+  }
+
+  private createDistortionCurve(amount: number): Float32Array<ArrayBuffer> {
+    const samples = 1024;
+    const curve = new Float32Array(
+      new ArrayBuffer(samples * Float32Array.BYTES_PER_ELEMENT),
+    );
+    const intensity = 5 + amount * 120;
+
+    for (let i = 0; i < samples; i += 1) {
+      const x = (i * 2) / (samples - 1) - 1;
+      curve[i] =
+        ((Math.PI + intensity) * x) / (Math.PI + intensity * Math.abs(x));
+    }
+
+    return curve;
   }
 
   private startMeterPolling(): void {
