@@ -4,7 +4,7 @@
   min-height: 832px;
   margin: 0 auto;
   position: relative;
-  color: var(--color-app-fg);
+  color: var(--mat-sys-on-surface, var(--color-app-fg));
   background: transparent;
   font-family: 'Avenir Next', 'Segoe UI', sans-serif;
 }
@@ -41,13 +41,13 @@
   top: 20px;
   right: 24px;
   pointer-events: auto;
-  color: var(--color-app-fg);
-  background: var(--color-overlay-subtle);
-  border: 1px solid var(--color-overlay-hover);
+  color: var(--mat-sys-on-surface, var(--color-app-fg));
+  background: var(--mat-sys-surface-container-low, var(--color-overlay-subtle));
+  border: 1px solid var(--mat-sys-outline-variant, var(--color-overlay-hover));
 }
 
 .settings-trigger:hover {
-  background: var(--color-overlay-hover);
+  background: var(--mat-sys-surface-container, var(--color-overlay-hover));
 }
 
 .indicator {
@@ -61,11 +61,11 @@
 
 .indicator-button {
   pointer-events: auto;
-  color: var(--color-app-fg);
+  color: var(--mat-sys-on-surface, var(--color-app-fg));
 }
 
 .indicator-button:hover {
-  background: var(--color-overlay-subtle);
+  background: var(--mat-sys-surface-container-low, var(--color-overlay-subtle));
 }
 
 .indicator-button .mat-icon {
@@ -105,38 +105,38 @@
 .outline-button {
   min-height: 32px;
   padding: 0 12px;
-  border: 1px solid var(--color-outline);
+  border: 1px solid var(--mat-sys-outline, var(--color-outline));
   border-radius: 14px;
-  color: var(--color-text-emphasis);
+  color: var(--mat-sys-on-surface, var(--color-text-emphasis));
   background: transparent;
   font-size: 0.82rem;
   cursor: pointer;
 }
 
 .outline-button:hover {
-  background: var(--color-overlay-subtle);
+  background: var(--mat-sys-surface-container-low, var(--color-overlay-subtle));
 }
 
 .routing-status {
   margin: 0;
   font-size: 0.8rem;
-  color: var(--color-text-muted);
+  color: var(--mat-sys-on-surface-variant, var(--color-text-muted));
 }
 
 .routing-status--ok {
-  color: var(--color-status-ok);
+  color: var(--mat-sys-tertiary, var(--color-status-ok));
 }
 
 .routing-status--warn {
-  color: var(--color-status-warn);
+  color: var(--mat-sys-secondary, var(--color-status-warn));
 }
 
 .effects-panel {
   width: 100%;
-  border: 1px solid var(--color-outline);
+  border: 1px solid var(--mat-sys-outline, var(--color-outline));
   border-radius: 16px;
   padding: 12px;
-  background: var(--color-overlay-subtle);
+  background: var(--mat-sys-surface-container-low, var(--color-overlay-subtle));
 }
 
 .effects-panel__header {
@@ -166,11 +166,11 @@
 .effects-panel__preset-input-wrap input {
   min-width: 180px;
   min-height: 30px;
-  border: 1px solid var(--color-outline);
+  border: 1px solid var(--mat-sys-outline-variant, var(--color-outline));
   border-radius: 10px;
   padding: 0 8px;
-  color: var(--color-app-fg);
-  background: var(--color-overlay-hover);
+  color: var(--mat-sys-on-surface, var(--color-app-fg));
+  background: var(--mat-sys-surface-container, var(--color-overlay-hover));
 }
 
 .effects-panel__preset-list {
@@ -211,7 +211,7 @@
 .effects-empty {
   margin: 4px 0 0;
   font-size: 0.86rem;
-  color: var(--color-text-muted);
+  color: var(--mat-sys-on-surface-variant, var(--color-text-muted));
 }
 
 .effects-list {
@@ -224,10 +224,10 @@
 }
 
 .effect-item {
-  border: 1px solid var(--color-outline);
+  border: 1px solid var(--mat-sys-outline-variant, var(--color-outline));
   border-radius: 12px;
   padding: 10px;
-  background: var(--color-overlay-hover);
+  background: var(--mat-sys-surface-container-high, var(--color-overlay-hover));
 }
 
 .effect-item__head {
@@ -245,7 +245,7 @@
 
 .effect-item__type {
   font-size: 0.75rem;
-  color: var(--color-text-muted);
+  color: var(--mat-sys-on-surface-variant, var(--color-text-muted));
 }
 
 .effect-item__actions {
@@ -275,7 +275,7 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  color: var(--color-diagnostic-outline);
+  color: var(--mat-sys-outline, var(--color-diagnostic-outline));
   pointer-events: none;
 }
 
@@ -290,11 +290,11 @@
   top: 12px;
   left: 14px;
   pointer-events: none;
-  color: var(--color-diagnostic-icon);
+  color: var(--mat-sys-on-surface-variant, var(--color-diagnostic-icon));
 }
 
 .health-card--warn {
-  box-shadow: inset 0 0 0 2px var(--color-health-warn);
+  box-shadow: inset 0 0 0 2px var(--mat-sys-error, var(--color-health-warn));
 }
 
 .health-icon svg,
@@ -328,7 +328,7 @@
   border: none;
   border-radius: 9px;
   background: transparent;
-  color: var(--color-diagnostic-icon);
+  color: var(--mat-sys-on-surface-variant, var(--color-diagnostic-icon));
   cursor: pointer;
   position: relative;
   align-self: end;
@@ -336,7 +336,7 @@
 }
 
 .health-reset:hover {
-  background: var(--color-overlay-hover);
+  background: var(--mat-sys-surface-container, var(--color-overlay-hover));
 }
 
 .mixer-column {
