@@ -43,12 +43,18 @@
   right: 24px;
   pointer-events: auto;
   color: var(--mat-sys-on-surface, var(--color-app-fg));
-  background: var(--mat-sys-surface-container-low, var(--color-overlay-subtle));
-  border: 1px solid var(--mat-sys-outline-variant, var(--color-overlay-hover));
+  background: transparent;
+  border: none;
 }
 
 .settings-trigger:hover {
-  background: var(--mat-sys-surface-container, var(--color-overlay-hover));
+  background: var(--mat-sys-surface-container-low, var(--color-overlay-subtle));
+}
+
+.settings-trigger .mat-icon {
+  width: 30px;
+  height: 30px;
+  font-size: 30px;
 }
 
 .indicator {
