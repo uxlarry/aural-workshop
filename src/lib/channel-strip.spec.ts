@@ -32,6 +32,17 @@ describe('ChannelStrip', () => {
             q: 0.707,
           },
         },
+        {
+          id: 'fx-2',
+          type: 'compressor',
+          label: 'Compressor',
+          bypassed: false,
+          mix: 1,
+          parameters: {
+            thresholdDb: -24,
+            ratio: 4,
+          },
+        },
       ],
     });
     await fixture.whenStable();
@@ -61,6 +72,56 @@ describe('ChannelStrip', () => {
     expect(emitSpy).toHaveBeenCalledWith({
       channelId: 'virtual-amp',
       effectId: 'fx-1',
+    });
+  });
+
+  it('should emit add effect request', () => {
+    const emitSpy = vi.spyOn(component.addEffectRequested, 'emit');
+
+    component.requestAddEffect();
+
+    expect(emitSpy).toHaveBeenCalledWith({
+      channelId: 'virtual-amp',
+    });
+  });
+
+  it('should emit reordered effects on drag end after preview reorder', () => {
+    const emitSpy = vi.spyOn(component.effectReordered, 'emit');
+
+    const listElement = document.createElement('div');
+    listElement.className = 'effect-rack__list';
+    listElement.getBoundingClientRect = () => ({ left: 0, top: 0 }) as DOMRect;
+
+    const buttonElement = document.createElement('button');
+    buttonElement.getBoundingClientRect = () =>
+      ({ left: 0, top: 0 }) as DOMRect;
+    buttonElement.closest = vi.fn().mockReturnValue(listElement);
+    buttonElement.setPointerCapture = vi.fn();
+    buttonElement.releasePointerCapture = vi.fn();
+    buttonElement.hasPointerCapture = vi.fn().mockReturnValue(true);
+
+    component.onEffectDragStart(
+      {
+        pointerId: 1,
+        clientX: 10,
+        clientY: 10,
+        currentTarget: buttonElement,
+        preventDefault: vi.fn(),
+      } as unknown as PointerEvent,
+      'fx-1',
+    );
+    component.onEffectDragMove({
+      pointerId: 1,
+      clientX: 60,
+      clientY: 10,
+    } as PointerEvent);
+    component.onEffectDragEnd({
+      pointerId: 1,
+    } as PointerEvent);
+
+    expect(emitSpy).toHaveBeenCalledWith({
+      channelId: 'virtual-amp',
+      effectIds: ['fx-2', 'fx-1'],
     });
   });
 });

@@ -7,18 +7,46 @@
   <div class="fader-visual" aria-label="Signal level meter">
     @if (channel().type === 'internal') {
     <section class="effect-rack" aria-label="Effects rack">
-      @if ((channel().effects?.length ?? 0) === 0) {
-      <p class="effect-rack__empty">No filters</p>
-      } @for (effect of channel().effects ?? []; track effect.id) {
-      <button
-        class="effect-rack__button"
-        type="button"
-        [attr.aria-label]="'Open settings for ' + effect.label"
-        (click)="selectEffect(effect.id)"
+      <div
+        class="effect-rack__list"
+        [class.effect-rack__list--previewing]="effectPreviewActive()"
+        [style.height.px]="effectRackListHeightPx()"
       >
-        <mat-icon color="primary">{{ effectIcon(effect.type) }}</mat-icon>
-      </button>
-      }
+        @if (effectPlaceholderVisible()) {
+        <span
+          class="effect-rack__placeholder"
+          aria-hidden="true"
+          [style.left.px]="effectPlaceholderLeftPx()"
+          [style.top.px]="effectPlaceholderTopPx()"
+        ></span>
+        } @for (effect of effectButtons(); track effect.id) {
+        <button
+          class="effect-rack__button"
+          [class.effect-rack__button--dragging]="effectButtonDragging(effect.id)"
+          type="button"
+          [style.left.px]="effectButtonLeftPx(effect.id)"
+          [style.top.px]="effectButtonTopPx(effect.id)"
+          [attr.aria-label]="'Open settings for ' + effect.label"
+          (pointerdown)="onEffectDragStart($event, effect.id)"
+          (pointermove)="onEffectDragMove($event)"
+          (pointerup)="onEffectDragEnd($event)"
+          (pointercancel)="onEffectDragEnd($event)"
+          (click)="onEffectClick($event, effect.id)"
+        >
+          <mat-icon color="primary">{{ effectIcon(effect.type) }}</mat-icon>
+        </button>
+        }
+        <button
+          class="effect-rack__button effect-rack__button--add"
+          type="button"
+          [style.left.px]="addButtonLeftPx()"
+          [style.top.px]="addButtonTopPx()"
+          [attr.aria-label]="'Add effect to ' + channel().label"
+          (click)="requestAddEffect()"
+        >
+          <mat-icon>settings_input_component</mat-icon>
+        </button>
+      </div>
     </section>
     }
 

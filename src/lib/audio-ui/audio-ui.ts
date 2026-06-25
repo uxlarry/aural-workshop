@@ -6,8 +6,17 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AudioParameterChange, MixerChannel } from '@org/audio-model';
-import { ChannelStrip, EffectSelection } from '../channel-strip';
-export type { EffectSelection } from '../channel-strip';
+import {
+  AddEffectRequest,
+  ChannelStrip,
+  EffectReorderRequest,
+  EffectSelection,
+} from '../channel-strip';
+export type {
+  AddEffectRequest,
+  EffectReorderRequest,
+  EffectSelection,
+} from '../channel-strip';
 
 @Component({
   selector: 'audio-audio-ui',
@@ -20,4 +29,6 @@ export class AudioUi {
   readonly channels = input.required<MixerChannel[]>();
   readonly parameterChange = output<AudioParameterChange>();
   readonly effectSelected = output<EffectSelection>();
+  readonly addEffectRequested = output<AddEffectRequest>();
+  readonly effectReordered = output<EffectReorderRequest>();
 }

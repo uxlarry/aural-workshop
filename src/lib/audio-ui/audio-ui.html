@@ -4,6 +4,8 @@
     [channel]="channel"
     (parameterChange)="parameterChange.emit($event)"
     (effectSelected)="effectSelected.emit($event)"
+    (addEffectRequested)="addEffectRequested.emit($event)"
+    (effectReordered)="effectReordered.emit($event)"
   />
   }
 </section>

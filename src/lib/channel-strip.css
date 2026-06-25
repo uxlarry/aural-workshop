@@ -7,7 +7,7 @@
   --channel-icon-size: 48px;
   --channel-icon-gap: 12px;
   --effect-rack-top: var(--channel-icon-top);
-  --effect-rack-height: 132.5px;
+  --effect-rack-height: 152px;
   --effect-rack-gap: 20px;
   --fader-top: calc(
     var(--effect-rack-top) + var(--effect-rack-height) + var(--effect-rack-gap)
@@ -75,15 +75,27 @@
   border-radius: var(--section-radius);
   background: var(--mat-sys-surface);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  gap: 8px;
-  flex-wrap: wrap;
   padding: 8px;
   z-index: 15;
 }
 
+.effect-rack__list {
+  position: relative;
+  width: 86px;
+}
+
+.effect-rack__list--previewing
+  .effect-rack__button:not(.effect-rack__button--dragging) {
+  box-shadow: var(--control-elevation);
+  transform: translateY(-1px);
+}
+
 .effect-rack__button {
+  position: absolute;
+  left: 0;
+  top: 0;
   width: 39px;
   height: 39px;
   border: 1px solid var(--mat-sys-outline-variant, var(--color-outline));
@@ -93,6 +105,13 @@
   display: grid;
   place-items: center;
   cursor: pointer;
+  transition:
+    left 180ms ease,
+    top 180ms ease,
+    opacity 160ms ease,
+    transform 160ms ease,
+    box-shadow 120ms ease,
+    background-color 120ms ease;
 }
 
 .effect-rack__button:hover {
@@ -106,10 +125,29 @@
   height: 20px;
 }
 
-.effect-rack__empty {
-  margin: 0;
-  font-size: 0.72rem;
-  color: var(--mat-sys-on-surface-variant, var(--color-text-muted));
+.effect-rack__button--add {
+  border-style: dashed;
+}
+
+.effect-rack__button--dragging {
+  z-index: 2;
+  cursor: grabbing;
+  box-shadow: var(--control-elevation);
+  transform: translateY(-2px) scale(1.03);
+}
+
+.effect-rack__placeholder {
+  position: absolute;
+  width: 39px;
+  height: 39px;
+  border: 1px dashed var(--mat-sys-outline, var(--color-outline));
+  border-radius: var(--section-radius);
+  background: var(--mat-sys-surface-container-low, var(--color-overlay-subtle));
+  box-shadow: inset 0 0 0 1px var(--mat-sys-primary, var(--color-app-fg));
+  transition:
+    left 180ms ease,
+    top 180ms ease,
+    box-shadow 160ms ease;
 }
 
 .level-meter {
@@ -299,7 +337,7 @@
     --strip-width: 124px;
     --strip-height: 1180px;
     --toggle-size: 44px;
-    --effect-rack-height: 124px;
+    --effect-rack-height: 144px;
     --fader-height: 540px;
     --fader-pan-gap: 36px;
     --pan-height: 52px;
@@ -328,7 +366,7 @@
     --strip-height: 1120px;
     --toggle-size: 40px;
     --channel-icon-size: 44px;
-    --effect-rack-height: 116px;
+    --effect-rack-height: 136px;
     --effect-rack-gap: 16px;
     --fader-height: 512px;
     --fader-pan-gap: 30px;
