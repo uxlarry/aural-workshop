@@ -291,7 +291,7 @@
   border: 0;
   border-radius: var(--section-radius);
   padding: 12px 14px;
-  background: var(--mat-sys-surface, var(--color-overlay-subtle));
+  background: var(--mat-sys-surface);
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
