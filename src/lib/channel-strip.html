@@ -64,23 +64,31 @@
       ></div>
     </div>
 
-    <section class="fader-level" aria-hidden="true"></section>
+    <section class="fader-level" aria-hidden="true">
+      @for (guideline of gainGuidelines(); track guideline.db) {
+      <div
+        class="fader-guideline"
+        [style.top.px]="guideline.topPx"
+        [attr.aria-label]="guideline.db + ' dB'"
+      ></div>
+      }
+    </section>
 
-    <div
-      class="gain-drag-track"
-      (pointerdown)="onGainDragStart($event)"
-      (pointermove)="onGainDragMove($event)"
-      (pointerup)="onGainDragEnd($event)"
-      (pointercancel)="onGainDragEnd($event)"
-      aria-hidden="true"
-    >
+    <div class="gain-drag-track" aria-hidden="true">
       <div
         class="gain-control"
         [style.top.px]="gainControlTopPx(channel().gainDb)"
+        (pointerdown)="onGainDragStart($event)"
+        (pointermove)="onGainDragMove($event)"
+        (pointerup)="onGainDragEnd($event)"
+        (pointercancel)="onGainDragEnd($event)"
+        (dblclick)="onGainControlDblClick()"
       >
         <span class="gain-control-line" aria-hidden="true"></span>
       </div>
     </div>
+
+    <section class="pan-level" aria-hidden="true"></section>
 
     <img
       class="pan-indicator"
@@ -91,28 +99,12 @@
       class="pan-control"
       src="/assets/figma/mixer-pan-control.svg"
       alt="Pan control"
-      [style.left.%]="panControlLeftPct(channel().pan)"
-    />
-
-    <div
-      class="pan-drag-track"
+      [style.left.%]="panControlLeftPercent(channel().pan)"
       (pointerdown)="onPanDragStart($event)"
       (pointermove)="onPanDragMove($event)"
       (pointerup)="onPanDragEnd($event)"
       (pointercancel)="onPanDragEnd($event)"
-      aria-hidden="true"
-    ></div>
-
-    <input
-      class="hidden-gain-input"
-      type="range"
-      min="-60"
-      max="12"
-      step="0.1"
-      [id]="channel().id + '-gain'"
-      [value]="channel().gainDb"
-      (input)="onGainChange(+$any($event.target).value)"
-      aria-label="Gain"
+      (dblclick)="onPanControlDblClick()"
     />
 
     <input
@@ -136,28 +128,9 @@
       [attr.aria-pressed]="channel().solo"
       [attr.aria-label]="'Toggle solo for ' + channel().label"
       (click)="toggleSolo()"
+      mat-icon-button
     >
-      <svg
-        width="47.5"
-        height="47.5"
-        viewBox="0 0 48 48"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <clipPath [attr.id]="clipPathId('solo-clip')">
-          <rect width="47.5" height="47.5" fill="white" />
-        </clipPath>
-        <g [attr.clip-path]="'url(#' + clipPathId('solo-clip') + ')'">
-          <path
-            d="M36.44 0H11.06C4.95173 0 0 4.95173 0 11.06V36.44C0 42.5483 4.95173 47.5 11.06 47.5H36.44C42.5483 47.5 47.5 42.5483 47.5 36.44V11.06C47.5 4.95173 42.5483 0 36.44 0Z"
-            fill="currentColor"
-          />
-          <path
-            d="M23.75 28.37C26.81 28.37 29.27 25.9 29.27 22.83L29.29 11.75C29.29 8.69002 26.82 6.21002 23.75 6.21002C20.68 6.21002 18.21 8.68002 18.21 11.75V22.83C18.21 25.89 20.68 28.37 23.75 28.37ZM33.54 22.83C33.54 28.37 28.85 32.25 23.75 32.25C18.65 32.25 13.96 28.37 13.96 22.83H10.82C10.82 29.13 15.84 34.33 21.9 35.24V41.3H25.59V35.24C31.65 34.35 36.67 29.15 36.67 22.83H33.53H33.54Z"
-            fill="black"
-          />
-        </g>
-      </svg>
+      <mat-icon>mic</mat-icon>
     </button>
 
     <button
@@ -167,28 +140,9 @@
       [attr.aria-pressed]="channel().muted"
       [attr.aria-label]="'Toggle mute for ' + channel().label"
       (click)="toggleMuted()"
+      mat-icon-button
     >
-      <svg
-        width="47.5"
-        height="47.5"
-        viewBox="0 0 48 48"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <clipPath [attr.id]="clipPathId('mute-clip')">
-          <rect width="47.5" height="47.5" fill="white" />
-        </clipPath>
-        <g [attr.clip-path]="'url(#' + clipPathId('mute-clip') + ')'">
-          <path
-            d="M36.44 0H11.06C4.95173 0 0 4.95173 0 11.06V36.44C0 42.5483 4.95173 47.5 11.06 47.5H36.44C42.5483 47.5 47.5 42.5483 47.5 36.44V11.06C47.5 4.95173 42.5483 0 36.44 0Z"
-            fill="currentColor"
-          />
-          <path
-            d="M12.74 17.12V30.47H21.64L32.76 41.59V6L21.64 17.12H12.74Z"
-            fill="black"
-          />
-        </g>
-      </svg>
+      <mat-icon>volume_mute</mat-icon>
     </button>
   </div>
 </article>

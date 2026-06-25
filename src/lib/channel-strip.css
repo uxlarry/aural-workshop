@@ -19,7 +19,7 @@
   --pan-height: 56.81px;
   --pan-indicator-offset: 14.4px;
   --toggle-top: calc(var(--pan-top) + var(--pan-height) + var(--fader-pan-gap));
-  --fader-pan-gap: 43.1px;
+  --fader-pan-gap: 20px;
   --meter-ok: var(--mat-sys-tertiary, var(--color-status-ok, #22c55e));
   --meter-warn: var(--mat-sys-secondary, var(--color-status-warn, #f59e0b));
   --meter-clip: var(--mat-sys-error, #ef4444);
@@ -192,12 +192,17 @@
   display: block;
   overflow: hidden;
   border-radius: var(--fader-container-radius);
-  border: 3px solid var(--mat-sys-on-surface, var(--color-app-fg));
+  border: 3px solid var(--mat-sys-outline, var(--color-outline));
   background-color: var(--mat-sys-surface);
-  background-image: url('/assets/figma/mixer-level.svg');
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: calc(100% - 10px) calc(100% - 10px);
+}
+
+.fader-guideline {
+  position: absolute;
+  left: 24px;
+  width: calc(100% - 48px);
+  height: 2px;
+  background-color: var(--mat-sys-on-surface, #ffffff);
+  opacity: 0.6;
 }
 
 .gain-drag-track {
@@ -207,7 +212,6 @@
   top: var(--fader-top);
   height: var(--fader-height);
   z-index: 12;
-  cursor: ns-resize;
   touch-action: none;
   background: transparent;
 }
@@ -224,6 +228,8 @@
   display: grid;
   place-items: center;
   transition: top 90ms linear;
+  cursor: ns-resize;
+  touch-action: none;
 }
 
 .gain-control-line {
@@ -232,38 +238,58 @@
   background: var(--mat-sys-on-surface, var(--color-fader-knob-fg));
 }
 
+.pan-level {
+  position: absolute;
+  top: var(--pan-top);
+  left: 0;
+  z-index: 10;
+  width: 100%;
+  height: 64.81px;
+  display: block;
+  overflow: hidden;
+  border-radius: var(--fader-container-radius);
+  border: 3px solid var(--mat-sys-on-surface, var(--color-app-fg));
+  background-color: var(--mat-sys-surface);
+  margin-top: -4px;
+}
+
 .pan-indicator {
   position: absolute;
   top: calc(var(--pan-top) + var(--pan-indicator-offset));
-  left: 4.5%;
-  width: 95.1%;
+  left: 12px;
+  width: calc(100% - 24px);
   z-index: 12;
 }
 
 .pan-control {
   position: absolute;
   top: var(--pan-top);
+  left: 50%;
   width: 24.5%;
+  transform: translateX(-50%);
   z-index: 12;
-  transition: left 120ms ease-out;
+  border-radius: var(--fader-control-radius);
+  overflow: hidden;
+  cursor: ew-resize;
+  transition: left 90ms linear;
 }
 
-:host-context(.theme-light) .fader-level,
+.pan-control:hover {
+  cursor: ew-resize;
+}
+
+:host-context(.theme-dark) .fader-level {
+  border-color: var(--mat-sys-on-surface);
+}
+
+:host-context(.theme-light) .fader-level {
+  border-color: var(--mat-sys-on-surface);
+}
+
+:host-context(.theme-light) .fader-guideline,
 :host-context(.theme-light) .pan-indicator,
 :host-context(.theme-light) .pan-control {
   filter: invert(1);
-}
-
-.pan-drag-track {
-  position: absolute;
-  left: 4.5%;
-  width: 95.1%;
-  top: var(--pan-top);
-  height: 56.81px;
-  z-index: 13;
-  cursor: ew-resize;
-  touch-action: none;
-  background: transparent;
 }
 
 .hidden-gain-input {
@@ -302,18 +328,27 @@
 .toggle-image {
   width: var(--toggle-size);
   height: var(--toggle-size);
-  border: 0;
-  border-radius: 0;
-  background: transparent;
+  border: 1px solid var(--mat-sys-outline-variant, var(--color-outline));
+  border-radius: var(--section-radius);
+  background: var(--mat-sys-surface, var(--color-contrast-bg));
   display: grid;
   place-items: center;
   padding: 0;
   cursor: pointer;
-  color: var(--toggle-default);
+  color: var(--mat-sys-on-surface, var(--color-contrast-fg));
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease;
 }
 
-.toggle-image svg {
-  display: block;
+.toggle-image .mat-icon {
+  width: 30px;
+  height: 30px;
+  font-size: 30px;
+}
+
+.toggle-image:hover {
+  background: var(--mat-sys-surface-container-low, var(--color-contrast-bg));
 }
 
 .toggle-image--active {
@@ -321,15 +356,15 @@
 }
 
 .toggle-image--solo.toggle-image--active {
-  color: var(--toggle-solo-active);
-  background: transparent;
-  box-shadow: none;
+  background: var(--toggle-solo-active);
+  border-color: var(--toggle-solo-active);
+  color: var(--mat-sys-on-surface, var(--color-contrast-fg));
 }
 
 .toggle-image--mute.toggle-image--active {
-  color: var(--toggle-mute-active);
-  background: transparent;
-  box-shadow: none;
+  background: var(--toggle-mute-active);
+  border-color: var(--toggle-mute-active);
+  color: var(--mat-sys-on-surface, var(--color-contrast-fg));
 }
 
 @media (max-width: 980px) {

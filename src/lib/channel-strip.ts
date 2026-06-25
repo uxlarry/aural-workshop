@@ -14,6 +14,7 @@ import {
   MixerEffectType,
 } from '@org/audio-model';
 import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 
 export interface EffectSelection {
   channelId: AudioChannelId;
@@ -31,7 +32,7 @@ export interface EffectReorderRequest {
 
 @Component({
   selector: 'audio-channel-strip',
-  imports: [CommonModule, MatIconModule],
+  imports: [CommonModule, MatIconModule, MatButtonModule],
   templateUrl: './channel-strip.html',
   styleUrl: './channel-strip.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -77,11 +78,11 @@ export class ChannelStrip implements DoCheck {
 
   private activeGainDrag: {
     pointerId: number;
-    trackElement: HTMLElement;
+    knobElement: HTMLElement;
   } | null = null;
   private activePanDrag: {
     pointerId: number;
-    trackElement: HTMLElement;
+    panControlElement: HTMLElement;
   } | null = null;
 
   ngDoCheck(): void {
@@ -135,6 +136,14 @@ export class ChannelStrip implements DoCheck {
 
   toggleSolo(): void {
     this.onSoloChange(!this.channel().solo);
+  }
+
+  onGainControlDblClick(): void {
+    this.onGainChange(0);
+  }
+
+  onPanControlDblClick(): void {
+    this.onPanChange(0);
   }
 
   selectEffect(effectId: string): void {
@@ -414,69 +423,16 @@ export class ChannelStrip implements DoCheck {
     return ((db + 60) / 60) * 100;
   }
 
-  panControlLeftPct(pan: number): number {
-    const clampedPan = Math.max(-1, Math.min(1, pan));
-    const indicatorLeftPct = 4.5;
-    const indicatorWidthPct = 95.1;
-    const controlWidthPct = 24.5;
-    const centerProgress = (clampedPan + 1) / 2;
-    const centerPct = indicatorLeftPct + centerProgress * indicatorWidthPct;
-
-    return centerPct - controlWidthPct / 2;
-  }
-
-  onPanDragStart(event: PointerEvent): void {
-    const trackElement = event.currentTarget as HTMLElement | null;
-    if (!trackElement) {
-      return;
-    }
-
-    trackElement.setPointerCapture(event.pointerId);
-    this.activePanDrag = {
-      pointerId: event.pointerId,
-      trackElement,
-    };
-
-    this.updatePanFromPointer(event);
-    event.preventDefault();
-  }
-
-  onPanDragMove(event: PointerEvent): void {
-    if (
-      !this.activePanDrag ||
-      event.pointerId !== this.activePanDrag.pointerId
-    ) {
-      return;
-    }
-
-    this.updatePanFromPointer(event);
-  }
-
-  onPanDragEnd(event: PointerEvent): void {
-    if (
-      !this.activePanDrag ||
-      event.pointerId !== this.activePanDrag.pointerId
-    ) {
-      return;
-    }
-
-    if (this.activePanDrag.trackElement.hasPointerCapture(event.pointerId)) {
-      this.activePanDrag.trackElement.releasePointerCapture(event.pointerId);
-    }
-
-    this.activePanDrag = null;
-  }
-
   onGainDragStart(event: PointerEvent): void {
-    const trackElement = event.currentTarget as HTMLElement | null;
-    if (!trackElement) {
+    const knobElement = event.currentTarget as HTMLElement | null;
+    if (!knobElement) {
       return;
     }
 
-    trackElement.setPointerCapture(event.pointerId);
+    knobElement.setPointerCapture(event.pointerId);
     this.activeGainDrag = {
       pointerId: event.pointerId,
-      trackElement,
+      knobElement,
     };
 
     this.updateGainFromPointer(event);
@@ -502,11 +458,57 @@ export class ChannelStrip implements DoCheck {
       return;
     }
 
-    if (this.activeGainDrag.trackElement.hasPointerCapture(event.pointerId)) {
-      this.activeGainDrag.trackElement.releasePointerCapture(event.pointerId);
+    if (this.activeGainDrag.knobElement.hasPointerCapture(event.pointerId)) {
+      this.activeGainDrag.knobElement.releasePointerCapture(event.pointerId);
     }
 
     this.activeGainDrag = null;
+  }
+
+  onPanDragStart(event: PointerEvent): void {
+    const panControlElement = event.currentTarget as HTMLElement | null;
+    if (!panControlElement) {
+      return;
+    }
+
+    panControlElement.setPointerCapture(event.pointerId);
+    this.activePanDrag = {
+      pointerId: event.pointerId,
+      panControlElement,
+    };
+
+    this.updatePanFromPointer(event);
+    event.preventDefault();
+  }
+
+  onPanDragMove(event: PointerEvent): void {
+    if (
+      !this.activePanDrag ||
+      event.pointerId !== this.activePanDrag.pointerId
+    ) {
+      return;
+    }
+
+    this.updatePanFromPointer(event);
+  }
+
+  onPanDragEnd(event: PointerEvent): void {
+    if (
+      !this.activePanDrag ||
+      event.pointerId !== this.activePanDrag.pointerId
+    ) {
+      return;
+    }
+
+    if (
+      this.activePanDrag.panControlElement.hasPointerCapture(event.pointerId)
+    ) {
+      this.activePanDrag.panControlElement.releasePointerCapture(
+        event.pointerId,
+      );
+    }
+
+    this.activePanDrag = null;
   }
 
   gainControlTopPx(gainDb: number): number {
@@ -523,22 +525,16 @@ export class ChannelStrip implements DoCheck {
     return this.gainTrackTopInsetPx + progress * travel;
   }
 
-  private updatePanFromPointer(event: PointerEvent): void {
-    if (!this.activePanDrag) {
-      return;
+  gainGuidelines(): Array<{ db: number; topPx: number }> {
+    const guidelines: Array<{ db: number; topPx: number }> = [];
+    // Generate guidelines every 10 dB from 12 to -60
+    for (let db = 12; db >= -60; db -= 10) {
+      guidelines.push({
+        db,
+        topPx: this.gainControlTopPx(db),
+      });
     }
-
-    const rect = this.activePanDrag.trackElement.getBoundingClientRect();
-    if (rect.width <= 0) {
-      return;
-    }
-
-    const progress = Math.max(
-      0,
-      Math.min(1, (event.clientX - rect.left) / rect.width),
-    );
-    const pan = progress * 2 - 1;
-    this.onPanChange(pan);
+    return guidelines;
   }
 
   private updateGainFromPointer(event: PointerEvent): void {
@@ -546,26 +542,85 @@ export class ChannelStrip implements DoCheck {
       return;
     }
 
-    const rect = this.activeGainDrag.trackElement.getBoundingClientRect();
-    if (rect.height <= 0) {
+    const containerRect =
+      this.activeGainDrag.knobElement.parentElement?.getBoundingClientRect();
+    if (!containerRect || containerRect.height <= 0) {
       return;
     }
 
-    const draggableHeight =
-      rect.height - this.gainTrackTopInsetPx - this.gainTrackBottomInsetPx;
+    const knobHeight = this.activeGainDrag.knobElement.clientHeight;
+    if (knobHeight <= 0) {
+      return;
+    }
+
+    // Calculate the draggable range: container height minus knob height
+    const draggableHeight = containerRect.height - knobHeight;
     if (draggableHeight <= 0) {
       return;
     }
 
-    const progress = Math.max(
-      0,
-      Math.min(
-        1,
-        (event.clientY - rect.top - this.gainTrackTopInsetPx) / draggableHeight,
-      ),
+    // Calculate how far the knob has moved from its starting position (center)
+    const centerY = containerRect.top + containerRect.height / 2;
+    const pointerOffset = event.clientY - centerY;
+
+    // Constrain the movement to the draggable range
+    const maxOffset = draggableHeight / 2;
+    const constrainedOffset = Math.max(
+      -maxOffset,
+      Math.min(maxOffset, pointerOffset),
     );
+
+    // Convert the offset to a gain value (-60 to 12 dB, inverted because top = high gain)
+    // At center (offset = 0), progress = 0.5, so gainDb = 12 - 0.5 * 72 = -24dB
+    const progress = 0.5 + constrainedOffset / draggableHeight;
     const gainDb = 12 - progress * 72;
     this.onGainChange(gainDb);
+  }
+
+  panControlLeftPercent(pan: number): number {
+    const clampedPan = Math.max(-1, Math.min(1, pan));
+    // Knob width is 24.5%, so available movement range is 75.5%
+    // Half range is 37.75%, which is how far the knob center can move from 50%
+    const halfRange = 37.75;
+    return 50 + clampedPan * halfRange;
+  }
+
+  private updatePanFromPointer(event: PointerEvent): void {
+    if (!this.activePanDrag) {
+      return;
+    }
+
+    const containerRect =
+      this.activePanDrag.panControlElement.parentElement?.getBoundingClientRect();
+    if (!containerRect || containerRect.width <= 0) {
+      return;
+    }
+
+    const knobWidth = this.activePanDrag.panControlElement.clientWidth;
+    if (knobWidth <= 0) {
+      return;
+    }
+
+    // Calculate the draggable range: container width minus knob width
+    const draggableWidth = containerRect.width - knobWidth;
+    if (draggableWidth <= 0) {
+      return;
+    }
+
+    // Calculate how far the knob has moved from its starting position (center)
+    const centerX = containerRect.left + containerRect.width / 2;
+    const pointerOffset = event.clientX - centerX;
+
+    // Constrain the movement to the draggable range
+    const maxOffset = draggableWidth / 2;
+    const constrainedOffset = Math.max(
+      -maxOffset,
+      Math.min(maxOffset, pointerOffset),
+    );
+
+    // Convert the offset to a pan value (-1 to 1)
+    const pan = constrainedOffset / maxOffset;
+    this.onPanChange(pan);
   }
 
   private reorderedEffectIdsByIndex(
