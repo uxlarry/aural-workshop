@@ -5,9 +5,7 @@
   --channel-icon-top: 10px;
   --channel-icon-size: 48px;
   --channel-icon-gap: 12px;
-  --effect-rack-top: calc(
-    var(--channel-icon-top) + var(--channel-icon-size) + var(--channel-icon-gap)
-  );
+  --effect-rack-top: var(--channel-icon-top);
   --effect-rack-height: 132.5px;
   --effect-rack-gap: 20px;
   --fader-top: calc(
@@ -21,6 +19,19 @@
   --pan-indicator-offset: 14.4px;
   --toggle-top: calc(var(--pan-top) + var(--pan-height) + var(--fader-pan-gap));
   --fader-pan-gap: 43.1px;
+  --meter-ok: var(--mat-sys-tertiary, var(--color-status-ok, #22c55e));
+  --meter-warn: var(--mat-sys-secondary, var(--color-status-warn, #f59e0b));
+  --meter-clip: var(--mat-sys-error, #ef4444);
+  --toggle-default: var(
+    --mat-sys-on-surface-variant,
+    var(--color-toggle-default)
+  );
+  --toggle-solo-active: var(--mat-sys-primary, #f97316);
+  --toggle-mute-active: var(--mat-sys-error, #ef4444);
+  --control-elevation: var(
+    --mat-sys-level1,
+    var(--mat-app-elevation-shadow-level-1, 0 1px 2px var(--color-shadow))
+  );
 
   width: var(--strip-width);
   min-height: var(--strip-height);
@@ -51,31 +62,15 @@
   height: var(--strip-height);
 }
 
-.channel-effect-icon {
-  position: absolute;
-  top: var(--channel-icon-top);
-  left: 50%;
-  width: var(--channel-icon-size);
-  height: var(--channel-icon-size);
-  transform: translateX(-50%);
-  border: 1px solid var(--color-overlay-hover);
-  border-radius: 50%;
-  background: var(--color-overlay-subtle);
-  display: grid;
-  place-items: center;
-  pointer-events: none;
-  z-index: 18;
-}
-
 .effect-rack {
   position: absolute;
   top: var(--effect-rack-top);
   left: 0;
   width: 100%;
   height: var(--effect-rack-height);
-  border: 4px solid var(--color-outline);
+  border: 4px solid var(--mat-sys-outline, var(--color-outline));
   border-radius: 20px;
-  background: var(--color-overlay-hover);
+  background: var(--mat-sys-surface-container-high, var(--color-overlay-hover));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -88,17 +83,18 @@
 .effect-rack__button {
   width: 39px;
   height: 39px;
-  border: 0;
+  border: 1px solid var(--mat-sys-outline-variant, var(--color-outline));
   border-radius: 12px;
-  background: var(--color-toggle-default);
-  color: #0e0e0e;
+  background: var(--mat-sys-surface, var(--color-contrast-bg));
+  color: var(--mat-sys-on-surface, var(--color-contrast-fg));
   display: grid;
   place-items: center;
   cursor: pointer;
 }
 
 .effect-rack__button:hover {
-  background: var(--color-overlay-subtle);
+  background: var(--mat-sys-surface-container-low, var(--color-contrast-bg));
+  box-shadow: var(--control-elevation);
 }
 
 .effect-rack__button .mat-icon {
@@ -110,7 +106,7 @@
 .effect-rack__empty {
   margin: 0;
   font-size: 0.72rem;
-  color: var(--color-text-muted);
+  color: var(--mat-sys-on-surface-variant, var(--color-text-muted));
 }
 
 .level-meter {
@@ -131,10 +127,10 @@
   height: 100%;
   background: linear-gradient(
     to top,
-    #22c55e 0%,
-    #22c55e 60%,
-    #f59e0b 80%,
-    #ef4444 100%
+    var(--meter-ok) 0%,
+    var(--meter-ok) 60%,
+    var(--meter-warn) 80%,
+    var(--meter-clip) 100%
   );
   clip-path: inset(100% 0 0 0);
   transition: clip-path 80ms linear;
@@ -142,7 +138,7 @@
 }
 
 .level-meter--clipping .level-meter__fill {
-  background: #ef4444;
+  background: var(--meter-clip);
 }
 
 .mixer-level {
@@ -174,8 +170,8 @@
   height: 32.58px;
   transform: translateX(-50%);
   border-radius: 16.29px;
-  background: var(--color-fader-knob-bg);
-  box-shadow: 0 1px 2px var(--color-shadow);
+  background: var(--mat-sys-surface, var(--color-fader-knob-bg));
+  box-shadow: var(--control-elevation);
   display: grid;
   place-items: center;
   transition: top 90ms linear;
@@ -184,7 +180,7 @@
 .gain-control-line {
   width: 82%;
   height: 1px;
-  background: var(--color-fader-knob-fg);
+  background: var(--mat-sys-on-surface, var(--color-fader-knob-fg));
 }
 
 .pan-indicator {
@@ -264,7 +260,7 @@
   place-items: center;
   padding: 0;
   cursor: pointer;
-  color: var(--color-toggle-default);
+  color: var(--toggle-default);
 }
 
 .toggle-image svg {
@@ -276,13 +272,13 @@
 }
 
 .toggle-image--solo.toggle-image--active {
-  color: #f97316;
+  color: var(--toggle-solo-active);
   background: transparent;
   box-shadow: none;
 }
 
 .toggle-image--mute.toggle-image--active {
-  color: #ef4444;
+  color: var(--toggle-mute-active);
   background: transparent;
   box-shadow: none;
 }

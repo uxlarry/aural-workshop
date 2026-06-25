@@ -6,14 +6,6 @@
 
   <div class="mixer-visual" aria-label="Signal level meter">
     @if (channel().type === 'internal') {
-    <button
-      class="channel-effect-icon"
-      type="button"
-      aria-label="Effects channel"
-    >
-      <mat-icon color="primary">circle</mat-icon>
-    </button>
-
     <section class="effect-rack" aria-label="Effects rack">
       @if ((channel().effects?.length ?? 0) === 0) {
       <p class="effect-rack__empty">No filters</p>
@@ -24,7 +16,7 @@
         [attr.aria-label]="'Open settings for ' + effect.label"
         (click)="selectEffect(effect.id)"
       >
-        <mat-icon>{{ effectIcon(effect.type) }}</mat-icon>
+        <mat-icon color="primary">{{ effectIcon(effect.type) }}</mat-icon>
       </button>
       }
     </section>
