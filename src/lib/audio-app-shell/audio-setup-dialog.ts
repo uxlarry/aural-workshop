@@ -33,11 +33,8 @@ export interface AudioSetupDialogData {
     MatSlideToggleModule,
   ],
   template: `
-    <h2 mat-dialog-title>Audio Setup</h2>
+    <h2 mat-dialog-title>User settings</h2>
     <mat-dialog-content>
-      <p>
-        Configure your input and output devices before starting live monitoring.
-      </p>
       @if (!data.outputSelectionSupported) {
         <p>
           Output device selection is not available in this browser. bbloop will

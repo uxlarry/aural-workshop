@@ -48,6 +48,7 @@ import {
   EffectCatalogDialog,
   EffectCatalogItem,
 } from './effect-catalog-dialog';
+import { SaveImportExportDialog } from './save-import-export-dialog';
 
 const SESSION_STORAGE_KEY = 'bbloop.mixer.session.v1';
 const THEME_STORAGE_KEY = 'bbloop.theme.v1';
@@ -726,6 +727,26 @@ export class AudioAppShell implements OnInit, OnDestroy {
           this.updateShowDiagnostics(result.showDiagnostics);
         }
       });
+  }
+
+  openSaveImportExportDialog(): void {
+    this.dialog.open(SaveImportExportDialog, {
+      data: {
+        hasPresets: this.effectPresets().length > 0,
+        onExport: () => this.exportEffectPresets(),
+        onImportTriggered: () => this.triggerFileInput(),
+      },
+    });
+  }
+
+  private triggerFileInput(): void {
+    const fileInput = this.document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'application/json';
+    fileInput.addEventListener('change', (event) =>
+      this.onPresetFileSelected(event),
+    );
+    fileInput.click();
   }
 
   private updateTheme(theme: AudioTheme): void {

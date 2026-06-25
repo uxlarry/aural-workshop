@@ -37,6 +37,26 @@
   gap: 172px;
 }
 
+.save-import-export-trigger {
+  position: absolute;
+  top: 20px;
+  right: 78px;
+  pointer-events: auto;
+  color: var(--mat-sys-on-surface, var(--color-app-fg));
+  background: transparent;
+  border: none;
+}
+
+.save-import-export-trigger:hover {
+  background: var(--mat-sys-surface-container-low, var(--color-overlay-subtle));
+}
+
+.save-import-export-trigger .mat-icon {
+  width: 30px;
+  height: 30px;
+  font-size: 30px;
+}
+
 .settings-trigger {
   position: absolute;
   top: 20px;
