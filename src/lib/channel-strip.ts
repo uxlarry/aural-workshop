@@ -27,6 +27,9 @@ export interface EffectSelection {
 })
 export class ChannelStrip {
   private readonly gainTrackHeightPx = 565;
+  private readonly gainTrackTopInsetPx = 20;
+  private readonly gainTrackBottomInsetPx = 14;
+  private readonly gainKnobHeightPx = 34.5;
   readonly channel = input.required<MixerChannel>();
   readonly parameterChange = output<AudioParameterChange>();
   readonly effectSelected = output<EffectSelection>();
@@ -211,10 +214,13 @@ export class ChannelStrip {
     const progress = (12 - clampedGain) / 72;
 
     const trackHeight = this.gainTrackHeightPx;
-    const knobHeight = 34.5;
-    const travel = trackHeight - knobHeight;
+    const travel =
+      trackHeight -
+      this.gainKnobHeightPx -
+      this.gainTrackTopInsetPx -
+      this.gainTrackBottomInsetPx;
 
-    return progress * travel;
+    return this.gainTrackTopInsetPx + progress * travel;
   }
 
   private updatePanFromPointer(event: PointerEvent): void {
@@ -245,9 +251,18 @@ export class ChannelStrip {
       return;
     }
 
+    const draggableHeight =
+      rect.height - this.gainTrackTopInsetPx - this.gainTrackBottomInsetPx;
+    if (draggableHeight <= 0) {
+      return;
+    }
+
     const progress = Math.max(
       0,
-      Math.min(1, (event.clientY - rect.top) / rect.height),
+      Math.min(
+        1,
+        (event.clientY - rect.top - this.gainTrackTopInsetPx) / draggableHeight,
+      ),
     );
     const gainDb = 12 - progress * 72;
     this.onGainChange(gainDb);
