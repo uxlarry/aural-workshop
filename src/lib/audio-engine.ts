@@ -82,6 +82,8 @@ export class BrowserAudioEngine implements AudioEngine {
   private meterTimer: ReturnType<typeof setInterval> | null = null;
   private readonly health: AudioHealthSnapshot = {
     dropoutCount: 0,
+    deviceLatencyMs: undefined,
+    effectLatencyMs: undefined,
     estimatedLatencyMs: undefined,
   };
 
@@ -96,7 +98,7 @@ export class BrowserAudioEngine implements AudioEngine {
       return;
     }
 
-    this.audioContext = new AudioContext();
+    this.audioContext = new AudioContext({ latencyHint: 'interactive' });
     this.audioContext.onstatechange = () => {
       if (
         this.audioContext?.state === 'interrupted' ||
@@ -108,15 +110,13 @@ export class BrowserAudioEngine implements AudioEngine {
       }
     };
     await this.audioContext.resume();
-    this.health.estimatedLatencyMs =
-      typeof this.audioContext.baseLatency === 'number'
-        ? this.audioContext.baseLatency * 1_000
-        : undefined;
+    this.updateEstimatedLatency();
   }
 
   async applySession(session: MixerSession): Promise<void> {
     assertValidMixerSession(session);
     this.session = normalizeMixerSession(session);
+    this.updateEstimatedLatency();
 
     if (!this.initialized) {
       return;
@@ -519,6 +519,80 @@ export class BrowserAudioEngine implements AudioEngine {
     return curve;
   }
 
+  private updateEstimatedLatency(): void {
+    const { deviceLatencyMs, effectLatencyMs, estimatedLatencyMs } =
+      this.computeLatencySnapshot();
+
+    this.health.deviceLatencyMs = deviceLatencyMs;
+    this.health.effectLatencyMs = effectLatencyMs;
+    this.health.estimatedLatencyMs = estimatedLatencyMs;
+  }
+
+  private computeLatencySnapshot(): {
+    deviceLatencyMs: number | undefined;
+    effectLatencyMs: number | undefined;
+    estimatedLatencyMs: number | undefined;
+  } {
+    const context = this.audioContext;
+
+    const contextLatencyMs = context
+      ? (typeof context.baseLatency === 'number' ? context.baseLatency : 0) +
+        (typeof context.outputLatency === 'number' ? context.outputLatency : 0)
+      : 0;
+
+    const effectLatencyMs = this.estimateEffectChainLatencyMs();
+    const totalLatencyMs = contextLatencyMs * 1_000 + effectLatencyMs;
+
+    const deviceLatencyValue = contextLatencyMs * 1_000;
+    const normalizedDeviceLatencyMs =
+      Number.isFinite(deviceLatencyValue) && deviceLatencyValue > 0
+        ? deviceLatencyValue
+        : undefined;
+    const normalizedEffectLatencyMs =
+      Number.isFinite(effectLatencyMs) && effectLatencyMs > 0
+        ? effectLatencyMs
+        : 0;
+
+    if (!Number.isFinite(totalLatencyMs) || totalLatencyMs <= 0) {
+      return {
+        deviceLatencyMs: normalizedDeviceLatencyMs,
+        effectLatencyMs: normalizedEffectLatencyMs,
+        estimatedLatencyMs: undefined,
+      };
+    }
+
+    return {
+      deviceLatencyMs: normalizedDeviceLatencyMs,
+      effectLatencyMs: normalizedEffectLatencyMs,
+      estimatedLatencyMs: totalLatencyMs,
+    };
+  }
+
+  private estimateEffectChainLatencyMs(): number {
+    const internalChannel = this.findChannelByType('internal');
+    if (!internalChannel) {
+      return 0;
+    }
+
+    const chainEffects = resolveChainEffects(
+      internalChannel.effects ?? [],
+      internalChannel.effectsEnabled !== false,
+    );
+
+    let estimatedMs = 0;
+    for (const effect of chainEffects) {
+      if (effect.type === 'compressor') {
+        estimatedMs += 1.2;
+      } else if (effect.type === 'distortion') {
+        estimatedMs += 0.8;
+      } else {
+        estimatedMs += 0.2;
+      }
+    }
+
+    return estimatedMs;
+  }
+
   private startMeterPolling(): void {
     if (this.meterTimer) {
       clearInterval(this.meterTimer);
@@ -628,6 +702,8 @@ export class NoopAudioEngine implements AudioEngine {
   private initialized = false;
   private readonly health: AudioHealthSnapshot = {
     dropoutCount: 0,
+    deviceLatencyMs: 0,
+    effectLatencyMs: 0,
     estimatedLatencyMs: 0,
   };
 
