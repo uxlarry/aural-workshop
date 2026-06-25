@@ -94,6 +94,8 @@
         [channels]="channels()"
         (parameterChange)="onParameterChange($event)"
         (effectSelected)="onEffectSelected($event)"
+        (addEffectRequested)="onAddEffectRequested($event)"
+        (effectReordered)="onEffectReordered($event)"
       />
 
       <div class="mixer-actions">

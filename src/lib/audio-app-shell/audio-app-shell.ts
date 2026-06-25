@@ -20,7 +20,12 @@ import {
   MixerSession,
   createDefaultMixerEffect,
 } from '@org/audio-model';
-import { AudioUi, EffectSelection } from '@org/audio-ui';
+import {
+  AddEffectRequest,
+  AudioUi,
+  EffectReorderRequest,
+  EffectSelection,
+} from '@org/audio-ui';
 import {
   AudioOrchestrationFacade,
   OutputRoutingStatus,
@@ -39,6 +44,10 @@ import {
   EffectParameterUiMeta,
   EffectSettingsDialog,
 } from './effect-settings-dialog';
+import {
+  EffectCatalogDialog,
+  EffectCatalogItem,
+} from './effect-catalog-dialog';
 
 const SESSION_STORAGE_KEY = 'bbloop.mixer.session.v1';
 const THEME_STORAGE_KEY = 'bbloop.theme.v1';
@@ -305,6 +314,25 @@ export class AudioAppShell implements OnInit, OnDestroy {
     this.openEffectSettings(selection.channelId, selection.effectId);
   }
 
+  onAddEffectRequested(request: AddEffectRequest): void {
+    this.openEffectCatalog(request.channelId);
+  }
+
+  onEffectReordered(request: EffectReorderRequest): void {
+    this.updateChannelEffects(request.channelId, (effects) => {
+      const effectsById = new Map(effects.map((effect) => [effect.id, effect]));
+      const orderedEffects = request.effectIds
+        .map((effectId) => effectsById.get(effectId))
+        .filter((effect): effect is MixerEffect => Boolean(effect));
+      const orderedIds = new Set(request.effectIds);
+      const untouchedEffects = effects.filter(
+        (effect) => !orderedIds.has(effect.id),
+      );
+
+      return [...orderedEffects, ...untouchedEffects];
+    });
+  }
+
   openEffectSettings(channelId: string, effectId: string): void {
     const targetChannel = this.channels().find(
       (channel) => channel.id === channelId,
@@ -352,11 +380,88 @@ export class AudioAppShell implements OnInit, OnDestroy {
     return this.findVirtualAmpChannel()?.effects ?? [];
   }
 
+  openEffectCatalog(channelId: string): void {
+    const targetChannel = this.channels().find(
+      (channel) => channel.id === channelId,
+    );
+    if (!targetChannel || targetChannel.type !== 'internal') {
+      return;
+    }
+
+    this.dialog.open(EffectCatalogDialog, {
+      data: {
+        channelLabel: targetChannel.label,
+        effects: this.effectCatalogItems(channelId),
+        onSetEffectTypeActive: (effectType: MixerEffectType, active: boolean) =>
+          this.setEffectTypeActive(channelId, effectType, active),
+      },
+      width: '360px',
+      autoFocus: false,
+    });
+  }
+
   addEffect(effectType: MixerEffectType): void {
     this.updateVirtualAmpEffects((effects) => {
       const newEffect = createDefaultMixerEffect(effectType);
       return [...effects, newEffect];
     });
+  }
+
+  private effectCatalogItems(channelId: string): EffectCatalogItem[] {
+    const channel = this.channels().find((item) => item.id === channelId);
+    const activeTypes = new Set(
+      (channel?.effects ?? []).map((effect) => effect.type),
+    );
+
+    return this.availableEffectTypes.map((effectType) => ({
+      type: effectType,
+      label: this.effectTypeLabel(effectType),
+      icon: this.effectTypeIcon(effectType),
+      active: activeTypes.has(effectType),
+    }));
+  }
+
+  private setEffectTypeActive(
+    channelId: string,
+    effectType: MixerEffectType,
+    active: boolean,
+  ): void {
+    const channel = this.channels().find((item) => item.id === channelId);
+    const isActive = (channel?.effects ?? []).some(
+      (effect) => effect.type === effectType,
+    );
+
+    if (!active) {
+      this.updateChannelEffects(channelId, (effects) =>
+        effects.filter((effect) => effect.type !== effectType),
+      );
+      return;
+    }
+
+    if (isActive) {
+      return;
+    }
+
+    this.updateChannelEffects(channelId, (effects) => [
+      ...effects,
+      createDefaultMixerEffect(effectType),
+    ]);
+  }
+
+  private effectTypeIcon(effectType: MixerEffectType): string {
+    if (effectType === 'highpass') {
+      return 'filter_alt';
+    }
+
+    if (effectType === 'lowpass') {
+      return 'filter_list';
+    }
+
+    if (effectType === 'compressor') {
+      return 'compress';
+    }
+
+    return 'graphic_eq';
   }
 
   setEffectsChainEnabled(enabled: boolean): void {
@@ -655,11 +760,18 @@ export class AudioAppShell implements OnInit, OnDestroy {
   private updateVirtualAmpEffects(
     updater: (effects: MixerEffect[]) => MixerEffect[],
   ): void {
+    this.updateChannelEffects('virtual-amp', updater);
+  }
+
+  private updateChannelEffects(
+    channelId: string,
+    updater: (effects: MixerEffect[]) => MixerEffect[],
+  ): void {
     let didUpdate = false;
 
     this.channels.update((channels) =>
       channels.map((channel) => {
-        if (channel.type !== 'internal') {
+        if (channel.id !== channelId || channel.type !== 'internal') {
           return channel;
         }
 
@@ -709,7 +821,23 @@ export class AudioAppShell implements OnInit, OnDestroy {
         return;
       }
 
-      this.channels.set(session.channels);
+      const sessionChannels = new Map(
+        session.channels.map((channel) => [channel.id, channel]),
+      );
+
+      this.channels.update((channels) =>
+        channels.map((channel) => {
+          const sessionChannel = sessionChannels.get(channel.id);
+          if (!sessionChannel) {
+            return channel;
+          }
+
+          return {
+            ...channel,
+            meter: sessionChannel.meter,
+          };
+        }),
+      );
       this.audioHealth.set(this.orchestration.readHealth());
     }, 150);
   }
