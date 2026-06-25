@@ -68,6 +68,8 @@ export interface DeviceCapabilities {
 
 export interface AudioHealthSnapshot {
   dropoutCount: number;
+  deviceLatencyMs?: number;
+  effectLatencyMs?: number;
   estimatedLatencyMs?: number;
 }
 
