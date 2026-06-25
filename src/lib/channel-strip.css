@@ -1,4 +1,5 @@
 .channel-strip {
+  --section-radius: var(--radius-corner, 16px);
   --strip-width: 132.5px;
   --strip-height: 1240px;
   --toggle-size: 47.5px;
@@ -28,6 +29,8 @@
   );
   --toggle-solo-active: var(--mat-sys-primary, #f97316);
   --toggle-mute-active: var(--mat-sys-error, #ef4444);
+  --fader-control-radius: var(--radius-corner, 16px);
+  --fader-container-radius: var(--section-radius);
   --control-elevation: var(
     --mat-sys-level1,
     var(--mat-app-elevation-shadow-level-1, 0 1px 2px var(--color-shadow))
@@ -56,7 +59,7 @@
   border: 0;
 }
 
-.mixer-visual {
+.fader-visual {
   position: relative;
   width: 100%;
   height: var(--strip-height);
@@ -68,9 +71,9 @@
   left: 0;
   width: 100%;
   height: var(--effect-rack-height);
-  border: 4px solid var(--mat-sys-outline, var(--color-outline));
-  border-radius: 20px;
-  background: var(--mat-sys-surface-container-high, var(--color-overlay-hover));
+  border: 3px solid var(--mat-sys-on-surface, var(--color-app-fg));
+  border-radius: var(--section-radius);
+  background: var(--mat-sys-surface);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -84,7 +87,7 @@
   width: 39px;
   height: 39px;
   border: 1px solid var(--mat-sys-outline-variant, var(--color-outline));
-  border-radius: 12px;
+  border-radius: var(--section-radius);
   background: var(--mat-sys-surface, var(--color-contrast-bg));
   color: var(--mat-sys-on-surface, var(--color-contrast-fg));
   display: grid;
@@ -141,7 +144,7 @@
   background: var(--meter-clip);
 }
 
-.mixer-level {
+.fader-level {
   position: absolute;
   top: var(--fader-top);
   left: 0;
@@ -149,6 +152,14 @@
   width: 100%;
   height: var(--fader-height);
   display: block;
+  overflow: hidden;
+  border-radius: var(--fader-container-radius);
+  border: 3px solid var(--mat-sys-on-surface, var(--color-app-fg));
+  background-color: var(--mat-sys-surface);
+  background-image: url('/assets/figma/mixer-level.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: calc(100% - 10px) calc(100% - 10px);
 }
 
 .gain-drag-track {
@@ -169,7 +180,7 @@
   width: 113.62px;
   height: 32.58px;
   transform: translateX(-50%);
-  border-radius: 16.29px;
+  border-radius: var(--fader-control-radius);
   background: var(--mat-sys-surface, var(--color-fader-knob-bg));
   box-shadow: var(--control-elevation);
   display: grid;
@@ -199,7 +210,7 @@
   transition: left 120ms ease-out;
 }
 
-:host-context(.theme-light) .mixer-level,
+:host-context(.theme-light) .fader-level,
 :host-context(.theme-light) .pan-indicator,
 :host-context(.theme-light) .pan-control {
   filter: invert(1);
@@ -299,7 +310,7 @@
 
   .effect-rack {
     border-width: 3px;
-    border-radius: 16px;
+    border-radius: var(--section-radius);
     padding: 6px;
     gap: 6px;
   }

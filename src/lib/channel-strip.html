@@ -4,7 +4,7 @@
 >
   <header class="channel-title">{{ channel().label }}</header>
 
-  <div class="mixer-visual" aria-label="Signal level meter">
+  <div class="fader-visual" aria-label="Signal level meter">
     @if (channel().type === 'internal') {
     <section class="effect-rack" aria-label="Effects rack">
       @if ((channel().effects?.length ?? 0) === 0) {
@@ -36,11 +36,7 @@
       ></div>
     </div>
 
-    <img
-      class="mixer-level"
-      src="/assets/figma/mixer-level.svg"
-      alt="Mixer level"
-    />
+    <section class="fader-level" aria-hidden="true"></section>
 
     <div
       class="gain-drag-track"
