@@ -108,6 +108,178 @@
         >
           {{ outputRoutingStateLabel() }}: {{ outputRoutingStatus().message }}
         </p>
+
+        <section class="effects-panel" aria-label="Virtual amp effects chain">
+          <header class="effects-panel__header">
+            <h2>Virtual Amp Effects</h2>
+            <div class="effects-panel__chain-toggle">
+              <button
+                class="outline-button"
+                type="button"
+                (click)="setEffectsChainEnabled(!effectsChainEnabled())"
+              >
+                {{ effectsChainEnabled() ? 'Disable Chain (A/B)' : 'Enable Chain
+                (A/B)' }}
+              </button>
+            </div>
+            <div class="effects-panel__preset-controls">
+              <label class="effects-panel__preset-input-wrap">
+                <span>Preset Name</span>
+                <input
+                  type="text"
+                  [value]="effectPresetName()"
+                  (input)="onEffectPresetNameInput($any($event.target).value)"
+                  placeholder="Warm Rhythm"
+                />
+              </label>
+              <button
+                class="outline-button"
+                type="button"
+                [disabled]="!effectPresetName().trim()"
+                (click)="saveEffectPreset()"
+              >
+                Save Preset
+              </button>
+              <button
+                class="outline-button"
+                type="button"
+                [disabled]="effectPresets().length === 0"
+                (click)="exportEffectPresets()"
+              >
+                Export Presets
+              </button>
+              <label class="outline-button effects-panel__import-button">
+                Import Presets
+                <input
+                  type="file"
+                  accept="application/json,.json"
+                  (change)="onPresetFileSelected($event)"
+                />
+              </label>
+            </div>
+
+            @if (effectPresets().length > 0) {
+            <div class="effects-panel__preset-list">
+              @for (preset of effectPresets(); track preset.name) {
+              <div class="effects-panel__preset-item">
+                <button
+                  class="outline-button"
+                  type="button"
+                  (click)="loadEffectPreset(preset.name)"
+                >
+                  Load {{ preset.name }}
+                </button>
+                <button
+                  class="outline-button"
+                  type="button"
+                  (click)="deleteEffectPreset(preset.name)"
+                >
+                  Delete
+                </button>
+              </div>
+              }
+            </div>
+            }
+
+            <div class="effects-panel__add-buttons">
+              @for (effectType of availableEffectTypes; track effectType) {
+              <button
+                class="outline-button"
+                type="button"
+                (click)="addEffect(effectType)"
+              >
+                Add {{ effectTypeLabel(effectType) }}
+              </button>
+              }
+            </div>
+          </header>
+
+          @if (!hasVirtualAmpEffects()) {
+          <p class="effects-empty">No effects loaded yet.</p>
+          }
+
+          <ol class="effects-list">
+            @for (effect of getVirtualAmpEffects(); track effect.id; let idx =
+            $index) {
+            <li class="effect-item">
+              <div class="effect-item__head">
+                <div class="effect-item__title">
+                  <strong>{{ idx + 1 }}. {{ effect.label }}</strong>
+                  <span class="effect-item__type"
+                    >{{ effectTypeLabel(effect.type) }}</span
+                  >
+                </div>
+
+                <div class="effect-item__actions">
+                  <button
+                    class="outline-button"
+                    type="button"
+                    (click)="moveEffect(effect.id, -1)"
+                    [disabled]="idx === 0"
+                  >
+                    Up
+                  </button>
+                  <button
+                    class="outline-button"
+                    type="button"
+                    (click)="moveEffect(effect.id, 1)"
+                    [disabled]="idx === getVirtualAmpEffects().length - 1"
+                  >
+                    Down
+                  </button>
+                  <button
+                    class="outline-button"
+                    type="button"
+                    (click)="setEffectBypassed(effect.id, !effect.bypassed)"
+                  >
+                    {{ effect.bypassed ? 'Enable' : 'Bypass' }}
+                  </button>
+                  <button
+                    class="outline-button"
+                    type="button"
+                    (click)="removeEffect(effect.id)"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+
+              <div class="effect-item__parameters">
+                <label>
+                  <span> Mix: {{ effect.mix | number: '1.2-2' }} </span>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    [value]="effect.mix"
+                    (input)="setEffectMix(effect.id, +$any($event.target).value)"
+                  />
+                </label>
+
+                @for (parameterMeta of effectUiParameters(effect.type); track
+                parameterMeta.parameter) {
+                <label>
+                  <span>
+                    {{ parameterMeta.label }}: {{ effectParameterValue(effect,
+                    parameterMeta.parameter, parameterMeta.min) | number:
+                    '1.0-2' }}
+                  </span>
+                  <input
+                    type="range"
+                    [min]="parameterMeta.min"
+                    [max]="parameterMeta.max"
+                    [step]="parameterMeta.step"
+                    [value]="effectParameterValue(effect, parameterMeta.parameter, parameterMeta.min)"
+                    (input)="setEffectParameter(effect.id, parameterMeta.parameter, +$any($event.target).value)"
+                  />
+                </label>
+                }
+              </div>
+            </li>
+            }
+          </ol>
+        </section>
       </div>
     </section>
   </div>

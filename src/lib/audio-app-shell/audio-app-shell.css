@@ -95,12 +95,11 @@
 }
 
 .mixer-actions {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
 }
 
 .outline-button {
@@ -130,6 +129,147 @@
 
 .routing-status--warn {
   color: var(--color-status-warn);
+}
+
+.effects-panel {
+  width: 100%;
+  border: 1px solid var(--color-outline);
+  border-radius: 16px;
+  padding: 12px;
+  background: var(--color-overlay-subtle);
+}
+
+.effects-panel__header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.effects-panel__chain-toggle {
+  display: flex;
+  gap: 8px;
+}
+
+.effects-panel__preset-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 8px;
+}
+
+.effects-panel__preset-input-wrap {
+  display: grid;
+  gap: 4px;
+  font-size: 0.78rem;
+}
+
+.effects-panel__preset-input-wrap input {
+  min-width: 180px;
+  min-height: 30px;
+  border: 1px solid var(--color-outline);
+  border-radius: 10px;
+  padding: 0 8px;
+  color: var(--color-app-fg);
+  background: var(--color-overlay-hover);
+}
+
+.effects-panel__preset-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.effects-panel__preset-item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.effects-panel__import-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.effects-panel__import-button input {
+  display: none;
+}
+
+.effects-panel__header h2 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.effects-panel__add-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.effects-empty {
+  margin: 4px 0 0;
+  font-size: 0.86rem;
+  color: var(--color-text-muted);
+}
+
+.effects-list {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.effect-item {
+  border: 1px solid var(--color-outline);
+  border-radius: 12px;
+  padding: 10px;
+  background: var(--color-overlay-hover);
+}
+
+.effect-item__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.effect-item__title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.effect-item__type {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.effect-item__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.effect-item__parameters {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.effect-item__parameters label {
+  display: grid;
+  gap: 4px;
+  font-size: 0.82rem;
+}
+
+.effect-item__parameters input[type='range'] {
+  width: 100%;
 }
 
 .health-card {
@@ -269,14 +409,6 @@
   }
 
   .mixer-actions {
-    position: static;
-    width: auto;
-    height: auto;
-    overflow: visible;
     margin-top: 12px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
   }
 }
