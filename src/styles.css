@@ -2,6 +2,7 @@
 
 :root,
 body.theme-dark {
+  --radius-corner: 16px;
   --color-primary: #f6931e;
   --color-app-bg: #060606;
   --color-app-fg: #ffffff;
@@ -33,6 +34,7 @@ body.theme-dark {
 }
 
 body.theme-light {
+  --radius-corner: 16px;
   --color-primary: #f6931e;
   --color-app-bg: #edf1f5;
   --color-app-fg: #17191d;
