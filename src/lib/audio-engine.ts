@@ -41,8 +41,12 @@ function gainDbToLinear(gainDb: number): number {
 interface ChannelNodes {
   gain: GainNode;
   pan: StereoPannerNode;
-  meter: AnalyserNode;
-  meterBuffer: Float32Array<ArrayBuffer>;
+  splitter: ChannelSplitterNode;
+  meterLeft: AnalyserNode;
+  meterRight: AnalyserNode;
+  meterBufferLeft: Float32Array<ArrayBuffer>;
+  meterBufferRight: Float32Array<ArrayBuffer>;
+  merger: ChannelMergerNode;
 }
 
 interface EffectNodeChain {
@@ -312,14 +316,14 @@ export class BrowserAudioEngine implements AudioEngine {
 
     this.sourceNode.connect(inputNodes.gain);
     inputNodes.gain.connect(inputNodes.pan);
-    inputNodes.pan.connect(internalNodes.gain);
+    inputNodes.merger.connect(internalNodes.gain);
     internalEffects.output.connect(internalNodes.pan);
-    internalNodes.pan.connect(outputNodes.gain);
+    internalNodes.merger.connect(outputNodes.gain);
     outputNodes.gain.connect(outputNodes.pan);
-    outputNodes.pan.connect(context.destination);
+    outputNodes.merger.connect(context.destination);
 
     this.monitorDestination = context.createMediaStreamDestination();
-    outputNodes.pan.connect(this.monitorDestination);
+    outputNodes.merger.connect(this.monitorDestination);
     this.ensureMonitorElement();
 
     this.startMeterPolling();
@@ -394,21 +398,39 @@ export class BrowserAudioEngine implements AudioEngine {
 
     const gain = context.createGain();
     const pan = context.createStereoPanner();
-    const meter = context.createAnalyser();
-    meter.fftSize = 1024;
-    meter.smoothingTimeConstant = 0.8;
+    const splitter = context.createChannelSplitter(2);
+    const meterLeft = context.createAnalyser();
+    const meterRight = context.createAnalyser();
+    const merger = context.createChannelMerger(2);
+
+    meterLeft.fftSize = 1024;
+    meterLeft.smoothingTimeConstant = 0.8;
+    meterRight.fftSize = 1024;
+    meterRight.smoothingTimeConstant = 0.8;
 
     gain.gain.value = this.computeEffectiveLinearGain(channel);
     pan.pan.value = channel.pan;
-    pan.connect(meter);
+
+    // Audio routing: pan -> splitter -> analyzers -> merger
+    pan.connect(splitter);
+    splitter.connect(meterLeft, 0);
+    splitter.connect(meterRight, 1);
+    meterLeft.connect(merger, 0, 0);
+    meterRight.connect(merger, 0, 1);
 
     const nodes = {
       gain,
       pan,
-      meter,
-      meterBuffer: new Float32Array(
-        new ArrayBuffer(meter.fftSize * Float32Array.BYTES_PER_ELEMENT),
+      splitter,
+      meterLeft,
+      meterRight,
+      meterBufferLeft: new Float32Array(
+        new ArrayBuffer(meterLeft.fftSize * Float32Array.BYTES_PER_ELEMENT),
       ),
+      meterBufferRight: new Float32Array(
+        new ArrayBuffer(meterRight.fftSize * Float32Array.BYTES_PER_ELEMENT),
+      ),
+      merger,
     };
     this.channelNodes.set(channel.id, nodes);
     return nodes;
@@ -605,28 +627,59 @@ export class BrowserAudioEngine implements AudioEngine {
 
       const meterByChannelId = new Map<
         string,
-        { peakDb: number; rmsDb: number; clipping: boolean }
+        {
+          peakDb: number;
+          rmsDb: number;
+          clipping: boolean;
+          leftDb: number;
+          rightDb: number;
+        }
       >();
 
       for (const [channelId, nodes] of this.channelNodes.entries()) {
-        nodes.meter.getFloatTimeDomainData(nodes.meterBuffer);
-
-        let peak = 0;
-        let sumSquares = 0;
-        for (let i = 0; i < nodes.meterBuffer.length; i += 1) {
-          const sample = nodes.meterBuffer[i];
+        // Analyze left channel
+        nodes.meterLeft.getFloatTimeDomainData(nodes.meterBufferLeft);
+        let peakLeft = 0;
+        let sumSquaresLeft = 0;
+        for (let i = 0; i < nodes.meterBufferLeft.length; i += 1) {
+          const sample = nodes.meterBufferLeft[i];
           const abs = Math.abs(sample);
-          if (abs > peak) {
-            peak = abs;
+          if (abs > peakLeft) {
+            peakLeft = abs;
           }
-          sumSquares += sample * sample;
+          sumSquaresLeft += sample * sample;
         }
+        const rmsLeft =
+          nodes.meterBufferLeft.length > 0
+            ? Math.sqrt(sumSquaresLeft / nodes.meterBufferLeft.length)
+            : 0;
 
-        const rms = Math.sqrt(sumSquares / nodes.meterBuffer.length);
+        // Analyze right channel
+        nodes.meterRight.getFloatTimeDomainData(nodes.meterBufferRight);
+        let peakRight = 0;
+        let sumSquaresRight = 0;
+        for (let i = 0; i < nodes.meterBufferRight.length; i += 1) {
+          const sample = nodes.meterBufferRight[i];
+          const abs = Math.abs(sample);
+          if (abs > peakRight) {
+            peakRight = abs;
+          }
+          sumSquaresRight += sample * sample;
+        }
+        const rmsRight =
+          nodes.meterBufferRight.length > 0
+            ? Math.sqrt(sumSquaresRight / nodes.meterBufferRight.length)
+            : 0;
+
+        // Peak is the maximum of both channels for clipping detection
+        const peak = Math.max(peakLeft, peakRight);
+
         meterByChannelId.set(channelId, {
           peakDb: this.linearToDb(peak),
-          rmsDb: this.linearToDb(rms),
+          rmsDb: this.linearToDb(Math.max(rmsLeft, rmsRight)),
           clipping: peak >= 0.995,
+          leftDb: this.linearToDb(peakLeft),
+          rightDb: this.linearToDb(peakRight),
         });
       }
 
