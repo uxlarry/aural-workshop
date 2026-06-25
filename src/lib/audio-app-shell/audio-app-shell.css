@@ -1,4 +1,5 @@
 .mixer-screen {
+  --section-radius: var(--radius-corner, 16px);
   width: 100%;
   max-width: 1280px;
   min-height: 832px;
@@ -106,7 +107,7 @@
   min-height: 32px;
   padding: 0 12px;
   border: 1px solid var(--mat-sys-outline, var(--color-outline));
-  border-radius: 14px;
+  border-radius: var(--section-radius);
   color: var(--mat-sys-on-surface, var(--color-text-emphasis));
   background: transparent;
   font-size: 0.82rem;
@@ -134,9 +135,9 @@
 .effects-panel {
   width: 100%;
   border: 1px solid var(--mat-sys-outline, var(--color-outline));
-  border-radius: 16px;
+  border-radius: var(--section-radius);
   padding: 12px;
-  background: var(--mat-sys-surface-container-low, var(--color-overlay-subtle));
+  background: var(--mat-sys-surface, var(--color-overlay-subtle));
 }
 
 .effects-panel__header {
@@ -225,9 +226,9 @@
 
 .effect-item {
   border: 1px solid var(--mat-sys-outline-variant, var(--color-outline));
-  border-radius: 12px;
+  border-radius: var(--section-radius);
   padding: 10px;
-  background: var(--mat-sys-surface-container-high, var(--color-overlay-hover));
+  background: var(--mat-sys-surface, var(--color-overlay-hover));
 }
 
 .effect-item__head {
@@ -262,8 +263,9 @@
   width: 274px;
   min-height: 115px;
   border: 0;
-  border-radius: 16px;
+  border-radius: var(--section-radius);
   padding: 12px 14px;
+  background: var(--mat-sys-surface, var(--color-overlay-subtle));
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
@@ -275,14 +277,12 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  color: var(--mat-sys-outline, var(--color-diagnostic-outline));
+  color: var(--mat-sys-on-surface, var(--color-app-fg));
   pointer-events: none;
-}
-
-.health-outline rect {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 3;
+  box-sizing: border-box;
+  border: 3px solid currentColor;
+  border-radius: var(--section-radius);
+  background: transparent;
 }
 
 .health-icon {

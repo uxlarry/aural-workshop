@@ -191,6 +191,8 @@ export class AudioAppShell implements OnInit, OnDestroy {
   });
   readonly audioHealth = signal<AudioHealthSnapshot>({
     dropoutCount: 0,
+    deviceLatencyMs: undefined,
+    effectLatencyMs: undefined,
     estimatedLatencyMs: undefined,
   });
   readonly figmaAssets = {
@@ -935,6 +937,24 @@ export class AudioAppShell implements OnInit, OnDestroy {
 
   healthLatencyLabel(): string {
     const latencyMs = this.audioHealth().estimatedLatencyMs;
+    if (typeof latencyMs !== 'number' || !Number.isFinite(latencyMs)) {
+      return 'n/a';
+    }
+
+    return `${latencyMs.toFixed(1)} ms`;
+  }
+
+  healthDeviceLatencyLabel(): string {
+    const latencyMs = this.audioHealth().deviceLatencyMs;
+    if (typeof latencyMs !== 'number' || !Number.isFinite(latencyMs)) {
+      return 'n/a';
+    }
+
+    return `${latencyMs.toFixed(1)} ms`;
+  }
+
+  healthEffectLatencyLabel(): string {
+    const latencyMs = this.audioHealth().effectLatencyMs;
     if (typeof latencyMs !== 'number' || !Number.isFinite(latencyMs)) {
       return 'n/a';
     }

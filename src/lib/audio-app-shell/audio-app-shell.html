@@ -269,14 +269,7 @@
     class="health-card"
     [class.health-card--warn]="audioHealth().dropoutCount > 0"
   >
-    <svg
-      class="health-outline"
-      viewBox="0 0 274 115"
-      preserveAspectRatio="none"
-      aria-hidden="true"
-    >
-      <rect x="1.5" y="1.5" width="271" height="112" rx="14.5" />
-    </svg>
+    <section class="health-outline" aria-hidden="true"></section>
 
     <div class="health-icon" aria-hidden="true">
       <svg viewBox="0 0 32 32" aria-hidden="true">
@@ -293,7 +286,9 @@
     </div>
 
     <div class="health-copy">
-      <p>Latency: {{ healthLatencyLabel() }}</p>
+      <p>Total Latency: {{ healthLatencyLabel() }}</p>
+      <p>Device Latency: {{ healthDeviceLatencyLabel() }}</p>
+      <p>Effect Latency: {{ healthEffectLatencyLabel() }}</p>
       <p>Dropouts: {{ audioHealth().dropoutCount }}</p>
     </div>
 
