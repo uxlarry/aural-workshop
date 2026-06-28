@@ -1,7 +1,37 @@
-<main class="hero-image-page">
-  <img
-    class="hero-image"
-    src="/assets/hero-image.png"
-    alt="Aural Workshop hero image"
-  />
+<main class="landing-page">
+  <section class="hero">
+    <div class="hero-scrim"></div>
+    <div class="hero-content">
+      <p class="eyebrow">Aural Workshop</p>
+      <h1>Audio Apps Directory</h1>
+      <p class="hero-subtitle">
+        Start from the workshop landing page, then launch each experience from
+        its app route.
+      </p>
+    </div>
+  </section>
+
+  <section class="directory-section" aria-label="Application directory">
+    <div class="section-header">
+      <h2>Applications</h2>
+      <p>Add more entries in the app directory to expand this catalog.</p>
+    </div>
+
+    <div class="card-grid">
+      @for (app of appDirectory; track app.route) {
+      <mat-card class="app-card" appearance="outlined">
+        <mat-card-header>
+          <mat-card-title>{{ app.title }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>{{ app.description }}</p>
+          <p class="route-label">Route: {{ app.route }}</p>
+        </mat-card-content>
+        <mat-card-actions>
+          <a mat-flat-button [href]="app.route">Open App</a>
+        </mat-card-actions>
+      </mat-card>
+      }
+    </div>
+  </section>
 </main>

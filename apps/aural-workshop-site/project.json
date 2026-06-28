@@ -74,6 +74,15 @@
         "staticFilePath": "dist/apps/aural-workshop-site",
         "spa": true
       }
+    },
+    "package-suite": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "node ./tools/scripts/package-app-suite.mjs"
+        ],
+        "parallel": false
+      }
     }
   }
 }
