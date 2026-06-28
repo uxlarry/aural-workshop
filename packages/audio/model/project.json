@@ -1,0 +1,9 @@
+{
+  "name": "audio-model",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/audio/model/src",
+  "projectType": "library",
+  "tags": ["scope:shared", "type:audio-model"],
+  "// targets": "to see all targets run: nx show project audio-model --web",
+  "targets": {}
+}
