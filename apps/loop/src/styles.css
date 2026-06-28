@@ -1,0 +1,278 @@
+/* You can add global styles to this file, and also import other style files */
+
+:root,
+body.theme-dark {
+  --radius-corner: 16px;
+  --color-primary: #f6931e;
+  --color-app-bg: #060606;
+  --color-app-fg: #ffffff;
+  --color-surface: #000000;
+  --color-outline: #cac4d0;
+  --color-overlay-subtle: rgb(255 255 255 / 8%);
+  --color-overlay-hover: rgb(255 255 255 / 16%);
+  --color-chip-bg: rgb(32 32 32 / 70%);
+  --color-chip-selected-bg: #e8def8;
+  --color-chip-selected-fg: #4a4459;
+  --color-text-muted: #c4c4c4;
+  --color-text-emphasis: #f1eafe;
+  --color-status-ok: #8fedb2;
+  --color-status-warn: #fbbf77;
+  --color-health-warn: #ffbf8a;
+  --color-diagnostic-outline: #ffffff;
+  --color-diagnostic-icon: #ffffff;
+  --color-shadow: rgb(0 0 0 / 35%);
+  --color-contrast-bg: #ffffff;
+  --color-contrast-fg: #000000;
+  --color-fader-knob-bg: #ffffff;
+  --color-fader-knob-fg: #000000;
+  --color-control-muted: #d8d8d8;
+  --color-control-soft: #d0d0d0;
+  --color-toggle-default: #ffffff;
+
+  --mat-sys-primary: var(--color-primary);
+  --mat-sys-on-primary: #1e1e1e;
+}
+
+body.theme-light {
+  --radius-corner: 16px;
+  --color-primary: #f6931e;
+  --color-app-bg: #edf1f5;
+  --color-app-fg: #17191d;
+  --color-surface: #ffffff;
+  --color-outline: #bcc2cc;
+  --color-overlay-subtle: rgb(17 25 40 / 6%);
+  --color-overlay-hover: rgb(17 25 40 / 12%);
+  --color-chip-bg: rgb(238 241 247 / 85%);
+  --color-chip-selected-bg: #d9e7ff;
+  --color-chip-selected-fg: #1c3f73;
+  --color-text-muted: #5e6572;
+  --color-text-emphasis: #273142;
+  --color-status-ok: #0f8a4b;
+  --color-status-warn: #c97518;
+  --color-health-warn: #e39c54;
+  --color-diagnostic-outline: #1f2735;
+  --color-diagnostic-icon: #1f2735;
+  --color-shadow: rgb(17 25 40 / 22%);
+  --color-contrast-bg: #f6f8fb;
+  --color-contrast-fg: #1a1f28;
+  --color-fader-knob-bg: #1a1f28;
+  --color-fader-knob-fg: #f6f8fb;
+  --color-control-muted: #5a6473;
+  --color-control-soft: #667284;
+  --color-toggle-default: #2f3a4c;
+
+  --mat-sys-primary: var(--color-primary);
+  --mat-sys-on-primary: #1e1e1e;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    sans-serif;
+  background: var(--color-app-bg);
+  color: var(--color-app-fg);
+}
+
+.cdk-overlay-container.theme-dark .mat-mdc-dialog-surface {
+  background: #151515;
+  color: var(--color-app-fg);
+  border: 1px solid rgb(255 255 255 / 12%);
+}
+
+.cdk-overlay-container.theme-dark .mat-mdc-menu-panel {
+  background: #151515;
+  color: var(--color-app-fg);
+  border: 1px solid rgb(255 255 255 / 12%);
+}
+
+.cdk-overlay-container.theme-dark .mat-mdc-dialog-title,
+.cdk-overlay-container.theme-dark .mat-mdc-dialog-content,
+.cdk-overlay-container.theme-dark .mat-mdc-dialog-surface .mdc-button__label {
+  color: var(--color-app-fg);
+}
+
+.cdk-overlay-container.theme-dark .mat-mdc-slide-toggle {
+  --mdc-switch-selected-track-color: var(--color-primary);
+  --mdc-switch-unselected-track-color: rgb(255 255 255 / 38%);
+  --mdc-switch-selected-handle-color: #1e1e1e;
+  --mdc-switch-unselected-handle-color: #ffffff;
+  --mdc-switch-selected-hover-track-color: var(--color-primary);
+  --mdc-switch-unselected-hover-track-color: rgb(255 255 255 / 48%);
+  --mdc-switch-selected-hover-handle-color: #1e1e1e;
+  --mdc-switch-unselected-hover-handle-color: #ffffff;
+  --mdc-switch-selected-focus-track-color: var(--color-primary);
+  --mdc-switch-unselected-focus-track-color: rgb(255 255 255 / 48%);
+  --mdc-switch-selected-focus-handle-color: #1e1e1e;
+  --mdc-switch-unselected-focus-handle-color: #ffffff;
+  --mdc-switch-selected-pressed-track-color: var(--color-primary);
+  --mdc-switch-unselected-pressed-track-color: rgb(255 255 255 / 52%);
+  --mdc-switch-selected-pressed-handle-color: #1e1e1e;
+  --mdc-switch-unselected-pressed-handle-color: #ffffff;
+  --mdc-switch-selected-icon-color: #0b2238;
+  --mdc-switch-unselected-icon-color: #0b2238;
+  --mdc-form-field-label-text-color: var(--color-app-fg);
+  --mdc-switch-track-shape: 8px;
+  --mdc-switch-selected-focus-state-layer-opacity: 0;
+  --mdc-switch-unselected-focus-state-layer-opacity: 0;
+}
+
+.cdk-overlay-container.theme-dark .mat-mdc-slide-toggle .mdc-switch {
+  filter: none;
+  overflow: visible;
+}
+
+.cdk-overlay-container.theme-dark .mat-mdc-slide-toggle .mdc-switch__track {
+  opacity: 1;
+}
+
+.cdk-overlay-container.theme-dark
+  .mat-mdc-slide-toggle
+  .mdc-switch--unselected
+  .mdc-switch__track::before {
+  background: rgb(255 255 255 / 38%) !important;
+}
+
+.cdk-overlay-container.theme-dark
+  .mat-mdc-slide-toggle
+  .mdc-switch--selected
+  .mdc-switch__track::before {
+  background: transparent !important;
+}
+
+.cdk-overlay-container.theme-dark
+  .mat-mdc-slide-toggle
+  .mdc-switch--unselected
+  .mdc-switch__track::after {
+  background: transparent !important;
+}
+
+.cdk-overlay-container.theme-dark
+  .mat-mdc-slide-toggle
+  .mdc-switch--selected
+  .mdc-switch__track::after {
+  background: var(--color-primary) !important;
+}
+
+.cdk-overlay-container.theme-dark
+  .mat-mdc-slide-toggle
+  .mdc-switch__track::before,
+.cdk-overlay-container.theme-dark
+  .mat-mdc-slide-toggle
+  .mdc-switch__track::after {
+  border-radius: 8px !important;
+}
+
+.cdk-overlay-container.theme-dark
+  .mat-mdc-slide-toggle
+  .mdc-switch--unselected
+  .mdc-switch__handle::before,
+.cdk-overlay-container.theme-dark
+  .mat-mdc-slide-toggle
+  .mdc-switch--selected
+  .mdc-switch__handle::before {
+  background: #ffffff !important;
+}
+
+.cdk-overlay-container.theme-dark
+  .mat-mdc-slide-toggle
+  .mdc-switch__icons
+  .mdc-switch__icon {
+  fill: #0b2238 !important;
+}
+
+.cdk-overlay-container.theme-light .mat-mdc-dialog-surface {
+  background: #ffffff;
+  color: var(--color-app-fg);
+  border: 1px solid rgb(17 25 40 / 12%);
+}
+
+.cdk-overlay-container.theme-light .mat-mdc-menu-panel {
+  background: #ffffff;
+  color: var(--color-app-fg);
+  border: 1px solid rgb(17 25 40 / 12%);
+}
+
+.cdk-overlay-container.theme-light .mat-mdc-dialog-title,
+.cdk-overlay-container.theme-light .mat-mdc-dialog-content,
+.cdk-overlay-container.theme-light .mat-mdc-dialog-surface .mdc-button__label {
+  color: var(--color-app-fg);
+}
+
+.cdk-overlay-container.theme-light .mat-mdc-slide-toggle {
+  --mdc-switch-selected-track-color: var(--color-primary);
+  --mdc-switch-unselected-track-color: rgb(31 39 53 / 30%);
+  --mdc-switch-selected-handle-color: #1e1e1e;
+  --mdc-switch-unselected-handle-color: #ffffff;
+  --mdc-form-field-label-text-color: var(--color-app-fg);
+  --mdc-switch-track-shape: 8px;
+  --mdc-switch-selected-focus-state-layer-opacity: 0;
+  --mdc-switch-unselected-focus-state-layer-opacity: 0;
+}
+
+.cdk-overlay-container.theme-light .mat-mdc-slide-toggle .mdc-switch {
+  overflow: visible;
+}
+
+.cdk-overlay-container.theme-light .mat-mdc-slide-toggle .mdc-switch__track {
+  opacity: 1;
+}
+
+.cdk-overlay-container.theme-light
+  .mat-mdc-slide-toggle
+  .mdc-switch--selected
+  .mdc-switch__track::before {
+  background: transparent !important;
+}
+
+.cdk-overlay-container.theme-light
+  .mat-mdc-slide-toggle
+  .mdc-switch--unselected
+  .mdc-switch__track::after {
+  background: transparent !important;
+}
+
+.cdk-overlay-container.theme-light
+  .mat-mdc-slide-toggle
+  .mdc-switch__track::before,
+.cdk-overlay-container.theme-light
+  .mat-mdc-slide-toggle
+  .mdc-switch__track::after {
+  border-radius: 8px !important;
+}
+
+.mat-mdc-raised-button.mat-primary {
+  --mdc-filled-button-container-color: var(--color-primary);
+  --mdc-filled-button-label-text-color: #1e1e1e;
+}
+
+.mat-mdc-raised-button,
+.mat-mdc-unelevated-button,
+.mat-mdc-outlined-button,
+.mat-mdc-button {
+  --mdc-filled-button-container-shape: 8px;
+  --mdc-protected-button-container-shape: 8px;
+  --mdc-outlined-button-container-shape: 8px;
+  --mdc-text-button-container-shape: 8px;
+  border-radius: 8px !important;
+}
+
+.mat-mdc-raised-button .mdc-button__ripple,
+.mat-mdc-unelevated-button .mdc-button__ripple,
+.mat-mdc-outlined-button .mdc-button__ripple,
+.mat-mdc-button .mdc-button__ripple {
+  border-radius: 8px !important;
+}
