@@ -1,0 +1,9 @@
+{
+  "name": "audio-device",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/audio/device/src",
+  "projectType": "library",
+  "tags": ["scope:shared", "type:audio-device"],
+  "// targets": "to see all targets run: nx show project audio-device --web",
+  "targets": {}
+}
