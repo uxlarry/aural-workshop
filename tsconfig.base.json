@@ -13,7 +13,17 @@
     "lib": ["es2020", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
-    "baseUrl": "."
+    "baseUrl": ".",
+    "paths": {
+      "@org/audio-model": ["./packages/audio/model/src/index.ts"],
+      "@org/audio-device": ["./packages/audio/device/src/index.ts"],
+      "@org/audio-engine": ["./packages/audio/engine/src/index.ts"],
+      "@org/audio-orchestration": [
+        "./packages/audio/orchestration/src/index.ts"
+      ],
+      "@org/audio-ui": ["./packages/audio/ui/src/index.ts"],
+      "@org/audio-app-shell": ["./packages/audio/app-shell/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

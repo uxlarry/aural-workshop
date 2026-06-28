@@ -1,9 +1,9 @@
 {
-  "name": "bbloop",
+  "name": "loop",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "prefix": "app",
-  "sourceRoot": "apps/bbloop/src",
+  "sourceRoot": "apps/loop/src",
   "tags": ["scope:shared"],
   "targets": {
     "build": {
@@ -11,16 +11,16 @@
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/apps/bbloop",
-        "browser": "apps/bbloop/src/main.ts",
-        "tsConfig": "apps/bbloop/tsconfig.app.json",
+        "outputPath": "dist/apps/loop",
+        "browser": "apps/loop/src/main.ts",
+        "tsConfig": "apps/loop/tsconfig.app.json",
         "assets": [
           {
             "glob": "**/*",
-            "input": "apps/bbloop/public"
+            "input": "apps/loop/public"
           }
         ],
-        "styles": ["apps/bbloop/src/styles.css"]
+        "styles": ["apps/loop/src/styles.css"]
       },
       "configurations": {
         "production": {
@@ -51,10 +51,10 @@
       "defaultConfiguration": "development",
       "configurations": {
         "production": {
-          "buildTarget": "bbloop:build:production"
+          "buildTarget": "loop:build:production"
         },
         "development": {
-          "buildTarget": "bbloop:build:development"
+          "buildTarget": "loop:build:development"
         }
       }
     },
@@ -65,8 +65,8 @@
       "continuous": true,
       "executor": "@nx/web:file-server",
       "options": {
-        "buildTarget": "bbloop:build",
-        "staticFilePath": "dist/apps/bbloop/browser",
+        "buildTarget": "loop:build",
+        "staticFilePath": "dist/apps/loop/browser",
         "spa": true
       }
     }

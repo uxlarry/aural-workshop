@@ -1,6 +1,6 @@
 {
-  "name": "bbloop",
-  "short_name": "bbloop",
+  "name": "loop",
+  "short_name": "loop",
   "description": "Browser-based live audio mixer and loop environment",
   "start_url": "/",
   "display": "standalone",
