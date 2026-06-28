@@ -79,9 +79,16 @@
       "executor": "nx:run-commands",
       "options": {
         "commands": [
-          "node ./tools/scripts/package-app-suite.mjs"
+          "/usr/local/bin/node ./tools/scripts/package-app-suite.mjs"
         ],
         "parallel": false
+      }
+    },
+    "serve-suite": {
+      "continuous": true,
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "python3 -m http.server 4300 --directory dist/deploy"
       }
     }
   }
