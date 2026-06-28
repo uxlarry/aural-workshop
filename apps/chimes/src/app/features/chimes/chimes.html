@@ -1,0 +1,137 @@
+<div class="page">
+  <header class="header">
+    <div class="logo">
+      <img class="logomark" src="logomark.png" alt="" />
+      <span class="logo-text">ChimeTune</span>
+    </div>
+    <div class="divider"></div>
+  </header>
+
+  <main class="container">
+    <!-- Chime Selector -->
+    <section class="chime-selector">
+      @for (preset of presets; track preset) {
+      <button
+        class="preset-item"
+        [class.active]="chimeCount() === preset"
+        (click)="selectPreset(preset)"
+      >
+        <span>{{ preset }} Chimes</span>
+      </button>
+      }
+    </section>
+
+    <!-- Chimes + Tuning -->
+    <section class="chimes-grid">
+      @for (chime of chimes(); track chime.id) {
+      <div class="chime-column">
+        <div class="chime-bar-container">
+          <button
+            class="chime-bar"
+            [class.active]="activeChimes().has(chime.id)"
+            (click)="playNote(chime.note, chime.id)"
+            [attr.aria-label]="'Play ' + chime.note"
+            [style.height.px]="chime.barHeight"
+          ></button>
+        </div>
+        <div class="pitch-slider-wrapper">
+          <input
+            type="range"
+            class="pitch-input"
+            [min]="visibleRange().lo"
+            [max]="visibleRange().hi"
+            [value]="chime.pitchIndex"
+            (input)="updatePitch(chime.id, +$any($event.target).value)"
+          />
+        </div>
+        <span class="pitch-label">{{ chime.note }}</span>
+      </div>
+      }
+    </section>
+
+    <!-- Octave Range -->
+    <section class="octave-range-section">
+      <div class="octave-range-header">
+        <span class="octave-range-label">Octave Range</span>
+        <span class="octave-range-value"
+          >{{ octaveMin() }}&ndash;{{ octaveMax() }}</span
+        >
+      </div>
+      <div class="octave-range-track" [style.background]="octaveTrackStyle()">
+        <input
+          type="range"
+          class="range-lower"
+          [min]="minOctave"
+          [max]="maxOctave"
+          step="1"
+          [value]="octaveMin()"
+          (input)="setOctaveMin(+$any($event.target).value)"
+          aria-label="Minimum octave"
+        />
+        <input
+          type="range"
+          class="range-upper"
+          [min]="minOctave"
+          [max]="maxOctave"
+          step="1"
+          [value]="octaveMax()"
+          (input)="setOctaveMax(+$any($event.target).value)"
+          aria-label="Maximum octave"
+        />
+      </div>
+      <div class="octave-ticks">
+        @for (oct of [2,3,4,5,6,7]; track oct) {
+        <span>{{ oct }}</span>
+        }
+      </div>
+    </section>
+
+    <!-- Chord Presets -->
+    <section class="chord-presets">
+      @for (preset of chordPresets; track preset.name) {
+      <button
+        class="chord-btn"
+        [class.active]="activeChord() === preset.name"
+        (click)="applyChordPreset(preset)"
+      >
+        {{ preset.name }}
+      </button>
+      }
+    </section>
+
+    <!-- Playback -->
+    <section class="playback">
+      <div class="accidental-toggle">
+        <span class="accidental-label" [class.active]="!useFlats()"
+          >&#9839;</span
+        >
+        <button
+          class="toggle-switch"
+          role="switch"
+          [attr.aria-checked]="useFlats()"
+          (click)="useFlats.set(!useFlats())"
+        >
+          <span class="toggle-thumb"></span>
+        </button>
+        <span class="accidental-label" [class.active]="useFlats()"
+          >&#9837;</span
+        >
+      </div>
+      <div class="speed-control">
+        <label class="speed-label" for="speed-slider">Speed</label>
+        <input
+          id="speed-slider"
+          type="range"
+          class="speed-slider"
+          min="0"
+          max="100"
+          [value]="speed()"
+          (input)="speed.set(+$any($event.target).value)"
+        />
+      </div>
+      <button class="play-btn" (click)="togglePlay()">
+        {{ isPlaying() ? 'Stop' : 'Play' }}
+      </button>
+    </section>
+  </main>
+</div>

@@ -1,0 +1,525 @@
+// Design tokens
+$bg: #000;
+$primary: #6750a4;
+$primary-light: #928dd3;
+$chime-color: $primary;
+$track-inactive: #e6e0e9;
+$text-muted: rgba(255, 255, 255, 0.7);
+
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.page {
+  background: $bg;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+}
+
+// =====================
+// Header
+// =====================
+.header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 16px 48px;
+  height: 64px;
+  z-index: 3;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logomark {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.logo-text {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  color: $primary-light;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.divider {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+// =====================
+// Main Container
+// =====================
+.container {
+  flex: 1;
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+  max-width: 1440px;
+  align-self: center;
+  width: 100%;
+}
+
+// =====================
+// Chime Selector
+// =====================
+.chime-selector {
+  display: flex;
+  gap: 8px;
+}
+
+.preset-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: transparent;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+  color: #fff;
+
+  img {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+
+  span {
+    font-family: 'Archivo', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    text-align: center;
+  }
+
+  &.active {
+    border-color: $primary;
+    background: rgba($primary, 0.12);
+  }
+
+  &:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.06);
+  }
+}
+
+// =====================
+// Chimes Grid
+// =====================
+.chimes-grid {
+  display: flex;
+  justify-content: center;
+  gap: 78px;
+}
+
+.chime-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.chime-bar-container {
+  width: 33px;
+  height: 170px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+@keyframes chime-vibrate {
+  0% {
+    transform: translateX(0);
+  }
+  10% {
+    transform: translateX(-4px);
+  }
+  20% {
+    transform: translateX(4px);
+  }
+  30% {
+    transform: translateX(-3px);
+  }
+  40% {
+    transform: translateX(3px);
+  }
+  50% {
+    transform: translateX(-2px);
+  }
+  60% {
+    transform: translateX(2px);
+  }
+  70% {
+    transform: translateX(-1px);
+  }
+  80% {
+    transform: translateX(1px);
+  }
+  90% {
+    transform: translateX(-1px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.chime-bar {
+  width: 33px;
+  height: 170px;
+  background: $chime-color;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover {
+    background: $primary-light;
+    transform: scaleX(1.1);
+  }
+
+  &:active,
+  &.active {
+    background: $primary;
+    animation: chime-vibrate 0.5s ease-out;
+  }
+}
+
+// =====================
+// Pitch Slider (vertical)
+// =====================
+.pitch-slider-wrapper {
+  width: 33px;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pitch-input {
+  width: 160px;
+  transform: rotate(-90deg);
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 4px;
+  outline: none;
+  background: $track-inactive;
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: $primary;
+    cursor: pointer;
+  }
+
+  &::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: $primary;
+    border: none;
+    cursor: pointer;
+  }
+}
+
+.pitch-label {
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+  color: $text-muted;
+  text-align: center;
+}
+
+// =====================
+// Octave Range Slider
+// =====================
+.octave-range-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.octave-range-header {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.octave-range-label {
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: $text-muted;
+}
+
+.octave-range-value {
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: $primary-light;
+}
+
+.octave-range-track {
+  position: relative;
+  width: 300px;
+  height: 4px;
+  border-radius: 4px;
+
+  input[type='range'] {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+    height: 4px;
+    appearance: none;
+    background: transparent;
+    pointer-events: none;
+    margin: 0;
+
+    &::-webkit-slider-thumb {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: $primary;
+      pointer-events: all;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    }
+
+    &::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: $primary;
+      border: none;
+      pointer-events: all;
+      cursor: pointer;
+    }
+  }
+
+  .range-lower {
+    z-index: 3;
+  }
+
+  .range-upper {
+    z-index: 4;
+  }
+}
+
+.octave-ticks {
+  display: flex;
+  justify-content: space-between;
+  width: 300px;
+  padding: 0 10px;
+
+  span {
+    font-family: 'Roboto', sans-serif;
+    font-size: 11px;
+    color: $text-muted;
+    text-align: center;
+  }
+}
+
+// =====================
+// Chord Presets
+// =====================
+.chord-presets {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.chord-btn {
+  background: transparent;
+  color: $text-muted;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+
+  &:hover {
+    background: rgba($primary, 0.15);
+    color: #fff;
+    border-color: $primary-light;
+  }
+
+  &.active {
+    background: $primary;
+    color: #fff;
+    border-color: $primary;
+  }
+}
+
+// =====================
+// Playback
+// =====================
+.playback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+}
+
+.speed-control {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.speed-label {
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  color: $text-muted;
+  text-transform: uppercase;
+}
+
+.speed-slider {
+  width: 180px;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 4px;
+  outline: none;
+  background: $track-inactive;
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: $primary;
+    cursor: pointer;
+  }
+
+  &::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: $primary;
+    border: none;
+    cursor: pointer;
+  }
+}
+
+.play-btn {
+  background: $primary;
+  color: #fff;
+  border: none;
+  border-radius: 100px;
+  padding: 10px 24px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.1px;
+  cursor: pointer;
+  min-width: 75px;
+  transition:
+    background 0.2s,
+    box-shadow 0.2s;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.15),
+    0 1px 2px rgba(0, 0, 0, 0.3);
+
+  &:hover {
+    background: #7965af;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+
+  &:active {
+    background: #5a4490;
+  }
+}
+
+// =====================
+// Accidental Toggle
+// =====================
+.accidental-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.accidental-label {
+  font-size: 20px;
+  color: $text-muted;
+  font-family: 'Roboto', sans-serif;
+  line-height: 1;
+  transition: color 0.2s;
+  user-select: none;
+
+  &.active {
+    color: $primary-light;
+  }
+}
+
+.toggle-switch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.25s;
+
+  &[aria-checked='true'] {
+    background: $primary;
+
+    .toggle-thumb {
+      transform: translateX(20px);
+    }
+  }
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.25s;
+  pointer-events: none;
+}
