@@ -1,0 +1,164 @@
+<article
+  class="channel-strip"
+  [class.channel-strip--internal]="channel().type === 'internal'"
+>
+  <header class="channel-title">{{ channel().label }}</header>
+
+  <div class="fader-visual" aria-label="Signal level meter">
+    @if (channel().type === 'internal') {
+    <section class="effect-rack" aria-label="Effects rack">
+      <div
+        class="effect-rack__list"
+        [class.effect-rack__list--previewing]="effectPreviewActive()"
+        [style.height.px]="effectRackListHeightPx()"
+      >
+        @if (effectPlaceholderVisible()) {
+        <span
+          class="effect-rack__placeholder"
+          aria-hidden="true"
+          [style.left.px]="effectPlaceholderLeftPx()"
+          [style.top.px]="effectPlaceholderTopPx()"
+        ></span>
+        } @for (effect of effectButtons(); track effect.id) {
+        <button
+          class="effect-rack__button"
+          [class.effect-rack__button--dragging]="effectButtonDragging(effect.id)"
+          type="button"
+          [style.left.px]="effectButtonLeftPx(effect.id)"
+          [style.top.px]="effectButtonTopPx(effect.id)"
+          [attr.aria-label]="'Open settings for ' + effect.label"
+          (pointerdown)="onEffectDragStart($event, effect.id)"
+          (pointermove)="onEffectDragMove($event)"
+          (pointerup)="onEffectDragEnd($event)"
+          (pointercancel)="onEffectDragEnd($event)"
+          (click)="onEffectClick($event, effect.id)"
+        >
+          <mat-icon color="primary">{{ effectIcon(effect.type) }}</mat-icon>
+        </button>
+        }
+        <button
+          class="effect-rack__button effect-rack__button--add"
+          type="button"
+          [style.left.px]="addButtonLeftPx()"
+          [style.top.px]="addButtonTopPx()"
+          [attr.aria-label]="'Add effect to ' + channel().label"
+          (click)="requestAddEffect()"
+        >
+          <mat-icon>settings_input_component</mat-icon>
+        </button>
+      </div>
+    </section>
+    }
+
+    <div class="level-meters" role="meter">
+      <div
+        class="level-meter level-meter--left"
+        [class.level-meter--clipping]="channel().meter?.clipping || (channel().meter?.leftDb ?? -100) >= 0"
+        [attr.aria-valuenow]="channel().meter?.leftDb ?? -100"
+        aria-valuemin="-60"
+        aria-valuemax="0"
+        aria-label="Left channel level"
+      >
+        <div
+          class="level-meter__fill"
+          [style.clip-path]="'inset(' + (100 - meterFillPct(channel().meter?.leftDb)) + '% 0 0 0)'"
+        ></div>
+      </div>
+
+      <div
+        class="level-meter level-meter--right"
+        [class.level-meter--clipping]="channel().meter?.clipping || (channel().meter?.rightDb ?? -100) >= 0"
+        [attr.aria-valuenow]="channel().meter?.rightDb ?? -100"
+        aria-valuemin="-60"
+        aria-valuemax="0"
+        aria-label="Right channel level"
+      >
+        <div
+          class="level-meter__fill"
+          [style.clip-path]="'inset(' + (100 - meterFillPct(channel().meter?.rightDb)) + '% 0 0 0)'"
+        ></div>
+      </div>
+    </div>
+
+    <section class="fader-level" aria-hidden="true">
+      @for (guideline of gainGuidelines(); track guideline.db) {
+      <div
+        class="fader-guideline"
+        [style.top.px]="guideline.topPx"
+        [attr.aria-label]="guideline.db + ' dB'"
+      ></div>
+      }
+    </section>
+
+    <div class="gain-drag-track" aria-hidden="true">
+      <div
+        class="gain-control"
+        [style.top.px]="gainControlTopPx(channel().gainDb)"
+        (pointerdown)="onGainDragStart($event)"
+        (pointermove)="onGainDragMove($event)"
+        (pointerup)="onGainDragEnd($event)"
+        (pointercancel)="onGainDragEnd($event)"
+        (dblclick)="onGainControlDblClick()"
+      >
+        <span class="gain-control-line" aria-hidden="true"></span>
+      </div>
+    </div>
+
+    <section class="pan-level" aria-hidden="true"></section>
+
+    <img
+      class="pan-indicator"
+      src="/assets/figma/mixer-pan-indicator.svg"
+      alt="Pan indicator"
+    />
+    <img
+      class="pan-control"
+      src="/assets/figma/mixer-pan-control.svg"
+      alt="Pan control"
+      [style.left.%]="panControlLeftPercent(channel().pan)"
+      (pointerdown)="onPanDragStart($event)"
+      (pointermove)="onPanDragMove($event)"
+      (pointerup)="onPanDragEnd($event)"
+      (pointercancel)="onPanDragEnd($event)"
+      (dblclick)="onPanControlDblClick()"
+    />
+
+    <input
+      class="hidden-pan-input"
+      type="range"
+      min="-1"
+      max="1"
+      step="0.01"
+      [id]="channel().id + '-pan'"
+      [value]="channel().pan"
+      (input)="onPanChange(+$any($event.target).value)"
+      aria-label="Pan"
+    />
+  </div>
+
+  <div class="toggle-row">
+    <button
+      class="toggle-image toggle-image--solo"
+      type="button"
+      [class.toggle-image--active]="channel().solo"
+      [attr.aria-pressed]="channel().solo"
+      [attr.aria-label]="'Toggle solo for ' + channel().label"
+      (click)="toggleSolo()"
+      mat-icon-button
+    >
+      <mat-icon>mic</mat-icon>
+    </button>
+
+    <button
+      class="toggle-image toggle-image--mute"
+      type="button"
+      [class.toggle-image--active]="channel().muted"
+      [attr.aria-pressed]="channel().muted"
+      [attr.aria-label]="'Toggle mute for ' + channel().label"
+      (click)="toggleMuted()"
+      mat-icon-button
+    >
+      <mat-icon>volume_mute</mat-icon>
+    </button>
+  </div>
+</article>

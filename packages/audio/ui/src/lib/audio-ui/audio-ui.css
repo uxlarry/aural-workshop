@@ -1,0 +1,21 @@
+.audio-mixer {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 87.5px;
+}
+
+@media (max-width: 980px) {
+  .audio-mixer {
+    gap: 40px;
+    padding-inline: 12px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+  }
+
+  .audio-mixer > * {
+    scroll-snap-align: start;
+    flex: 0 0 auto;
+  }
+}
