@@ -13,19 +13,34 @@ const builds = [
   'loop:build:development',
 ];
 
-for (const target of builds) {
-  const result = spawnSync(nodeBin, [nxCli, 'run', target], {
-    cwd: workspaceRoot,
-    stdio: 'inherit',
-    env: {
-      ...process.env,
-      NX_DAEMON: 'false',
-    },
-  });
+const runBuild = (target) => {
+  const maxAttempts = 3;
 
-  if (result.status !== 0) {
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    const result = spawnSync(nodeBin, [nxCli, 'run', target], {
+      cwd: workspaceRoot,
+      stdio: 'inherit',
+      env: {
+        ...process.env,
+        NX_DAEMON: 'false',
+      },
+    });
+
+    if (result.status === 0) {
+      return;
+    }
+
+    if (attempt < maxAttempts) {
+      console.warn(`Retrying ${target} (${attempt + 1}/${maxAttempts})...`);
+      continue;
+    }
+
     process.exit(result.status ?? 1);
   }
+};
+
+for (const target of builds) {
+  runBuild(target);
 }
 
 const copyPlan = [

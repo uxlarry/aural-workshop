@@ -206,8 +206,8 @@ export class AudioAppShell implements OnInit, OnDestroy {
     estimatedLatencyMs: undefined,
   });
   readonly figmaAssets = {
-    logo: '/assets/figma/logo.svg',
-    channelIndicator: '/assets/figma/icon-channel.svg',
+    logo: 'assets/figma/logo.svg',
+    channelIndicator: 'assets/figma/icon-channel.svg',
   };
   readonly availableEffectTypes: MixerEffectType[] = [
     'highpass',
