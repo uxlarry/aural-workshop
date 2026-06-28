@@ -22,31 +22,23 @@ describe('App', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should render brand title', () => {
+  it('should render the hero image', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.brand-title')?.textContent).toContain(
-      'Aural Workshop',
-    );
+    const image = compiled.querySelector('.hero-image') as HTMLImageElement;
+    expect(image).toBeTruthy();
+    expect(image.getAttribute('src')).toBe('/assets/hero-image.png');
   });
 
-  it('should render coming soon hero message', () => {
+  it('should render only one image on the page', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.hero h1')?.textContent).toContain(
-      'Our New Experience Is Almost Here',
-    );
+    const images = compiled.querySelectorAll('img');
+    expect(images.length).toBe(1);
   });
 
-  it('should render launch information cards', () => {
-    const cards = fixture.nativeElement.querySelectorAll('mat-card');
-    expect(cards.length).toBe(2);
-    expect(cards[0]?.textContent).toContain('Launch Status');
-    expect(cards[1]?.textContent).toContain('Hero Image');
-  });
-
-  it('should render footer copy', () => {
-    const footer = fixture.nativeElement.querySelector('.site-footer');
-    expect(footer).toBeTruthy();
-    expect(footer?.textContent).toContain('Aural Workshop');
+  it('should include descriptive image alt text', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    const image = compiled.querySelector('.hero-image') as HTMLImageElement;
+    expect(image.getAttribute('alt')).toContain('Aural Workshop hero image');
   });
 
   it('should apply change detection strategy OnPush', () => {
