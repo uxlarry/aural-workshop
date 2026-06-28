@@ -78,9 +78,7 @@
     "package-suite": {
       "executor": "nx:run-commands",
       "options": {
-        "commands": [
-          "/usr/local/bin/node ./tools/scripts/package-app-suite.mjs"
-        ],
+        "commands": ["node ./tools/scripts/package-app-suite.mjs"],
         "parallel": false
       }
     },
@@ -88,7 +86,7 @@
       "continuous": true,
       "executor": "nx:run-commands",
       "options": {
-        "command": "python3 -m http.server 4300 --directory dist/deploy"
+        "command": "node ./tools/scripts/package-app-suite.mjs && node ./tools/scripts/serve-deploy-suite.mjs"
       }
     }
   }

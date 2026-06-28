@@ -5,7 +5,7 @@ import { spawnSync } from 'node:child_process';
 const workspaceRoot = process.cwd();
 const deployRoot = resolve(workspaceRoot, 'dist/deploy');
 const nxCli = resolve(workspaceRoot, 'node_modules/nx/dist/bin/nx.js');
-const nodeBin = '/usr/local/bin/node';
+const nodeBin = process.execPath;
 
 const builds = [
   'aural-workshop-site:build:development',
