@@ -14,4 +14,19 @@ import { APP_DIRECTORY } from './app-directory';
 })
 export class App {
   readonly appDirectory = APP_DIRECTORY;
+
+  private readonly suitePort = '4300';
+
+  appHref(route: string): string {
+    if (typeof window === 'undefined') {
+      return route;
+    }
+
+    // During `nx serve aural-workshop-site` route app links to the suite host.
+    if (window.location.port === '4200') {
+      return `${window.location.protocol}//${window.location.hostname}:${this.suitePort}${route}`;
+    }
+
+    return route;
+  }
 }

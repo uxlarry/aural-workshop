@@ -28,7 +28,7 @@
           <p class="route-label">Route: {{ app.route }}</p>
         </mat-card-content>
         <mat-card-actions>
-          <a mat-flat-button [href]="app.route">Open App</a>
+          <a mat-flat-button [href]="appHref(app.route)">Open App</a>
         </mat-card-actions>
       </mat-card>
       }

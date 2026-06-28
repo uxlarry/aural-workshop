@@ -1,4 +1,4 @@
-import { cpSync, existsSync, mkdirSync, rmSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
@@ -64,12 +64,30 @@ mkdirSync(deployRoot, { recursive: true });
 for (const { from, to } of copyPlan) {
   if (!existsSync(from)) {
     throw new Error(
-      `Missing build output: ${from}. Run build for all apps before packaging.`
+      `Missing build output: ${from}. Run build for all apps before packaging.`,
     );
   }
 
   mkdirSync(to, { recursive: true });
   cpSync(from, to, { recursive: true, force: true });
 }
+
+const htaccess = `Options -MultiViews
+RewriteEngine On
+
+# Serve existing files/directories directly.
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# SPA fallbacks for embedded apps.
+RewriteRule ^apps/chimes(?:/.*)?$ /apps/chimes/index.html [L]
+RewriteRule ^apps/loop(?:/.*)?$ /apps/loop/index.html [L]
+
+# SPA fallback for the landing site.
+RewriteRule ^ /index.html [L]
+`;
+
+writeFileSync(resolve(deployRoot, '.htaccess'), htaccess, 'utf8');
 
 console.log(`Packaged app suite at ${deployRoot}`);
