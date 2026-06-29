@@ -208,6 +208,7 @@ export class AudioAppShell implements OnInit, OnDestroy {
   readonly loopAssets = {
     logo: 'assets/loop-ui/logo.svg',
     channelIndicator: 'assets/loop-ui/icon-channel.svg',
+    byaw: 'assets/byaw.svg',
   };
   readonly availableEffectTypes: MixerEffectType[] = [
     'highpass',

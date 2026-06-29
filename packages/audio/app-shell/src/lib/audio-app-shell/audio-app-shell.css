@@ -24,8 +24,8 @@
 }
 
 .bbloop-logo img {
-  width: 132px;
-  height: 35px;
+  width: auto;
+  height: 40px;
   display: block;
 }
 
@@ -110,6 +110,7 @@
 .indicator--channel {
   border-radius: 50%;
   overflow: hidden;
+  color: var(--mat-sys-primary, var(--color-app-fg));
 }
 
 .input-device-menu-item--selected {
