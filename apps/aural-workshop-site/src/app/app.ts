@@ -14,6 +14,7 @@ import { APP_DIRECTORY } from './app-directory';
 })
 export class App {
   readonly appDirectory = APP_DIRECTORY;
+  readonly currentYear = new Date().getFullYear();
 
   private readonly suitePort = '4300';
 

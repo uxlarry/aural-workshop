@@ -8,7 +8,17 @@
       @for (app of appDirectory; track app.route) {
       <mat-card class="app-card" appearance="outlined">
         <mat-card-header>
-          <mat-card-title>{{ app.title }}</mat-card-title>
+          <mat-card-title class="app-card-title">
+            <img
+              class="app-card-logo"
+              [class.app-card-logo--loop]="app.title === 'Loop'"
+              [src]="app.logoSrc"
+              [alt]="app.logoAlt"
+            />
+            @if (app.title !== 'Loop') {
+            <span class="app-card-title-text">{{ app.title }}</span>
+            }
+          </mat-card-title>
         </mat-card-header>
         <mat-card-content>
           <p>{{ app.description }}</p>
@@ -20,4 +30,30 @@
       }
     </div>
   </section>
+
+  <footer class="landing-footer" aria-label="Site footer">
+    <p class="landing-footer-copy">
+      Aural Workshop is an Open Source project for music and audio experiments
+      and tools.
+      <a
+        class="landing-footer-link"
+        href="https://github.com/uxlarry/aural-workshop"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Aural Workshop GitHub repository"
+      >
+        <svg
+          class="landing-footer-link-icon"
+          viewBox="0 0 24 24"
+          role="img"
+          aria-hidden="true"
+        >
+          <path
+            d="M12 0.5C5.65 0.5 0.5 5.65 0.5 12c0 5.08 3.29 9.39 7.86 10.91.57.1.78-.25.78-.55 0-.27-.01-1.16-.02-2.1-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.69.08-.69 1.15.08 1.76 1.18 1.76 1.18 1.02 1.76 2.68 1.25 3.33.95.1-.74.4-1.25.73-1.54-2.55-.29-5.24-1.27-5.24-5.68 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.47.11-3.06 0 0 .97-.31 3.17 1.18a10.9 10.9 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.62 1.59.23 2.77.11 3.06.73.81 1.18 1.84 1.18 3.1 0 4.42-2.7 5.38-5.27 5.66.41.35.78 1.03.78 2.08 0 1.5-.01 2.71-.01 3.08 0 .3.21.66.79.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"
+          />
+        </svg>
+      </a>
+    </p>
+    <p class="landing-footer-legal">&copy; {{ currentYear }} Aural Workshop</p>
+  </footer>
 </main>
