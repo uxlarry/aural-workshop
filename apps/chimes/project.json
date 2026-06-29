@@ -4,6 +4,9 @@
   "projectType": "application",
   "prefix": "app",
   "sourceRoot": "apps/chimes/src",
+  "metadata": {
+    "license": "MIT"
+  },
   "tags": [],
   "targets": {
     "build": {
@@ -11,6 +14,7 @@
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/apps/chimes",
+        "baseHref": "/apps/chimes/",
         "browser": "apps/chimes/src/main.ts",
         "tsConfig": "apps/chimes/tsconfig.app.json",
         "inlineStyleLanguage": "scss",

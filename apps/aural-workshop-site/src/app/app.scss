@@ -1,0 +1,59 @@
+.landing-page {
+  background-image: url('/assets/landing_page.png');
+  background-size: cover;
+  overflow: hidden;
+  background-position: center;
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: minmax(420px, 56vh) auto;
+}
+
+.hero {
+  position: relative;
+}
+
+.logo {
+  margin: 1rem;
+  z-index: 1;
+  img {
+    height: 4rem;
+    width: auto;
+  }
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 760px;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  color: #f6f7fb;
+}
+
+h1 {
+  margin: 0.75rem 0 0;
+  font-size: clamp(2rem, 5vw, 3.6rem);
+  line-height: 1.05;
+}
+
+.card-grid {
+  margin: 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.app-card {
+  backdrop-filter: blur(2px);
+  border-color: rgba(21, 21, 21, 0.08);
+  background: rgba(255, 255, 255, 0.94);
+}
+
+mat-card-actions {
+  padding: 1rem 1rem 1rem;
+}
+
+@media (max-width: 640px) {
+  .landing-page {
+    grid-template-rows: minmax(360px, 48vh) auto;
+  }
+}

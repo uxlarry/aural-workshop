@@ -4,6 +4,9 @@
   "projectType": "application",
   "prefix": "app",
   "sourceRoot": "apps/aural-workshop-site/src",
+  "metadata": {
+    "license": "MIT"
+  },
   "tags": ["scope:shop"],
   "targets": {
     "build": {
@@ -73,6 +76,20 @@
         "port": 4200,
         "staticFilePath": "dist/apps/aural-workshop-site",
         "spa": true
+      }
+    },
+    "package-suite": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": ["node ./tools/scripts/package-app-suite.mjs"],
+        "parallel": false
+      }
+    },
+    "serve-suite": {
+      "continuous": true,
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node ./tools/scripts/package-app-suite.mjs && node ./tools/scripts/serve-deploy-suite.mjs"
       }
     }
   }

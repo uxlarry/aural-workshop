@@ -4,6 +4,9 @@
   "projectType": "application",
   "prefix": "app",
   "sourceRoot": "apps/loop/src",
+  "metadata": {
+    "license": "MIT"
+  },
   "tags": ["scope:shared"],
   "targets": {
     "build": {
@@ -12,6 +15,7 @@
       "defaultConfiguration": "production",
       "options": {
         "outputPath": "dist/apps/loop",
+        "baseHref": "/apps/loop/",
         "browser": "apps/loop/src/main.ts",
         "tsConfig": "apps/loop/tsconfig.app.json",
         "assets": [

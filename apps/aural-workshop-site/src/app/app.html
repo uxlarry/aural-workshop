@@ -1,7 +1,23 @@
-<main class="hero-image-page">
-  <img
-    class="hero-image"
-    src="/assets/hero-image.png"
-    alt="Aural Workshop hero image"
-  />
+<main class="landing-page">
+  <section class="hero">
+    <div class="logo">
+      <img src="assets/aural_logo.png" alt="Aural Workshop Logo" />
+    </div>
+    <div class="hero-content"></div>
+    <div class="card-grid">
+      @for (app of appDirectory; track app.route) {
+      <mat-card class="app-card" appearance="outlined">
+        <mat-card-header>
+          <mat-card-title>{{ app.title }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>{{ app.description }}</p>
+        </mat-card-content>
+        <mat-card-actions>
+          <a mat-flat-button [href]="appHref(app.route)">Open App</a>
+        </mat-card-actions>
+      </mat-card>
+      }
+    </div>
+  </section>
 </main>

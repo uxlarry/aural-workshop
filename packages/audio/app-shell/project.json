@@ -4,6 +4,9 @@
   "sourceRoot": "packages/audio/app-shell/src",
   "prefix": "audio",
   "projectType": "library",
+  "metadata": {
+    "license": "MIT"
+  },
   "tags": ["scope:shared", "type:audio-app"],
   "targets": {
     "lint": {
