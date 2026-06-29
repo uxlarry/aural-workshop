@@ -4,6 +4,9 @@
   "projectType": "application",
   "prefix": "app",
   "sourceRoot": "apps/chimes/src",
+  "metadata": {
+    "license": "MIT"
+  },
   "tags": [],
   "targets": {
     "build": {

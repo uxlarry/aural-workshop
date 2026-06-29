@@ -28,6 +28,11 @@ npx nx run aural-workshop-site:vite:test
 npx nx run aural-workshop-site:lint
 ```
 
+## License
+
+This monorepo and all projects in it are licensed under the MIT License. See
+the root LICENSE file for details.
+
 ## Hero Image
 
 Add your hero image file at:

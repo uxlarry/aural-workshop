@@ -4,6 +4,9 @@
   "projectType": "application",
   "prefix": "app",
   "sourceRoot": "apps/aural-workshop-site/src",
+  "metadata": {
+    "license": "MIT"
+  },
   "tags": ["scope:shop"],
   "targets": {
     "build": {

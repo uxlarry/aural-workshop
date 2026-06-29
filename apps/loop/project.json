@@ -4,6 +4,9 @@
   "projectType": "application",
   "prefix": "app",
   "sourceRoot": "apps/loop/src",
+  "metadata": {
+    "license": "MIT"
+  },
   "tags": ["scope:shared"],
   "targets": {
     "build": {
