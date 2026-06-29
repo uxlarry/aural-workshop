@@ -6,8 +6,8 @@
   --card-stagger: 120ms;
   --card-duration: 680ms;
   --footer-delay: calc(
-    var(--cards-start-delay) + (var(--card-stagger) * 5) + var(--card-duration) +
-      140ms
+    var(--cards-start-delay) + (var(--card-stagger) * 5) +
+      var(--card-duration) + 140ms
   );
   --footer-duration: 700ms;
 
