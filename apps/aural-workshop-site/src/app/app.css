@@ -1,4 +1,8 @@
 .landing-page {
+  background-image: url('/assets/landing_page.png');
+  background-size: cover;
+  overflow: hidden;
+  background-position: center;
   min-height: 100vh;
   display: grid;
   grid-template-rows: minmax(420px, 56vh) auto;
@@ -6,18 +10,6 @@
 
 .hero {
   position: relative;
-  overflow: hidden;
-  background-image: url('/assets/hero-image.png');
-  background-size: cover;
-  background-position: center;
-}
-
-.hero-scrim {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(120deg, rgba(15, 16, 20, 0.75), rgba(15, 16, 20, 0.25)),
-    radial-gradient(circle at 80% 20%, rgba(246, 147, 30, 0.5), transparent 50%);
 }
 
 .hero-content {
@@ -34,6 +26,7 @@
   text-transform: uppercase;
   font-weight: 700;
   color: #ffd7a4;
+  background-image: url('/assets/aural_logo.png');
 }
 
 h1 {
