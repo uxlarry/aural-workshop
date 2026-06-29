@@ -9,7 +9,7 @@ import { APP_DIRECTORY } from './app-directory';
   standalone: true,
   imports: [CommonModule, MatCardModule, MatButtonModule],
   templateUrl: './app.html',
-  styleUrl: './app.css',
+  styleUrl: './app.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App {

@@ -12,6 +12,15 @@
   position: relative;
 }
 
+.logo {
+  margin: 1rem;
+  z-index: 1;
+  img {
+    height: 4rem;
+    width: auto;
+  }
+}
+
 .hero-content {
   position: relative;
   z-index: 1;
@@ -20,42 +29,14 @@
   color: #f6f7fb;
 }
 
-.eyebrow {
-  margin: 0;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  font-weight: 700;
-  color: #ffd7a4;
-  background-image: url('/assets/aural_logo.png');
-}
-
 h1 {
   margin: 0.75rem 0 0;
   font-size: clamp(2rem, 5vw, 3.6rem);
   line-height: 1.05;
 }
 
-.hero-subtitle {
-  margin-top: 1rem;
-  max-width: 44ch;
-  font-size: clamp(1rem, 2.1vw, 1.3rem);
-}
-
-.directory-section {
-  padding: clamp(1rem, 3vw, 2rem);
-}
-
-.section-header h2 {
-  margin: 0;
-  font-size: clamp(1.3rem, 2.3vw, 1.9rem);
-}
-
-.section-header p {
-  margin: 0.5rem 0 1.25rem;
-  color: #4a4a4a;
-}
-
 .card-grid {
+  margin: 2rem;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1rem;
@@ -67,14 +48,8 @@ h1 {
   background: rgba(255, 255, 255, 0.94);
 }
 
-.route-label {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.8rem;
-  color: #555;
-}
-
 mat-card-actions {
-  padding: 0 1rem 1rem;
+  padding: 1rem 1rem 1rem;
 }
 
 @media (max-width: 640px) {
