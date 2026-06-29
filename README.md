@@ -1,66 +1,106 @@
-# Aural Workshop Placeholder Site
+# Aural Workshop
 
-This workspace now contains a single Angular application that acts as a
-placeholder and launch announcement page for Aural Workshop.
+Aural Workshop is an Open Source project for music and audio experiments and tools. This Nx monorepo highlights the applications and includes multiple Angular applications and reusable audio-focused packages.
 
-## What Is Included
+## Workspace Overview
 
-- One app: `aural-workshop-site`
-- Angular Material UI components
-- Brand primary color set to `#f6931e`
-- Hero section configured to load an image from:
-  `apps/aural-workshop-site/public/hero-image.jpg`
+### Applications
 
-## Local Development
+- `aural-workshop-site`: Main site app
+- `chimes`: Chime-focused app
+- `loop`: Loop-focused app
+
+### Packages
+
+- `audio-app-shell`
+- `audio-device`
+- `audio-engine`
+- `audio-model`
+- `audio-orchestration`
+- `audio-ui`
+
+## Requirements
+
+- Node.js 24+
+- npm 11+
+
+## Install
 
 ```bash
 npm install
-npx nx run aural-workshop-site:serve
 ```
 
-The app runs at `http://localhost:4200` by default.
+## Development
 
-## Build and Test
+Serve an application:
 
 ```bash
-npx nx run aural-workshop-site:build
-npx nx run aural-workshop-site:vite:test
-npx nx run aural-workshop-site:lint
+npm exec nx run aural-workshop-site:serve
+npm exec nx run chimes:serve
+npm exec nx run loop:serve
+```
+
+Default dev URL is usually `http://localhost:4200`.
+
+## Build
+
+Build a specific app:
+
+```bash
+npm exec nx run aural-workshop-site:build
+npm exec nx run chimes:build
+npm exec nx run loop:build
+```
+
+Build all projects:
+
+```bash
+npm exec nx run-many -t build
+```
+
+## Test and Lint
+
+Run tests for projects that define test targets:
+
+```bash
+npm exec nx run-many -t test
+```
+
+Run Vitest targets where configured:
+
+```bash
+npm exec nx run-many -t vite:test
+```
+
+Run lint across the workspace:
+
+```bash
+npm exec nx run-many -t lint
+```
+
+## Packaging and Suite Commands
+
+The `aural-workshop-site` app includes additional orchestration targets:
+
+```bash
+npm exec nx run aural-workshop-site:package-suite
+npm exec nx run aural-workshop-site:serve-suite
+```
+
+## Useful Nx Commands
+
+List projects:
+
+```bash
+npm exec nx show projects
+```
+
+Run only tasks affected by current changes:
+
+```bash
+npm exec nx affected -t build,test,lint
 ```
 
 ## License
 
-This monorepo and all projects in it are licensed under the MIT License. See
-the root LICENSE file for details.
-
-## Hero Image
-
-Add your hero image file at:
-
-`apps/aural-workshop-site/public/hero-image.jpg`
-
-If that file is missing, the page still loads with the gradient background,
-but no image will be displayed.
-
-[Install Nx Console &raquo;](https://nx.dev/docs/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## 🔗 Learn More
-
-- [Nx Documentation](https://nx.dev/docs)
-- [Angular Monorepo Tutorial](https://nx.dev/docs/getting-started/tutorials/angular-monorepo-tutorial)
-- [Module Boundaries](https://nx.dev/docs/features/enforce-module-boundaries)
-- [Docker Integration](https://nx.dev/docs/guides/nx-release/release-docker-images)
-- [Playwright Testing](https://nx.dev/docs/technologies/test-tools/playwright)
-- [Vite with Angular](https://nx.dev/docs/technologies/build-tools/vite)
-- [Nx Cloud](https://nx.dev/nx-cloud)
-- [Releasing Packages](https://nx.dev/docs/features/manage-releases)
-
-## 💬 Community
-
-Join the Nx community:
-
-- [Discord](https://go.nx.dev/community)
-- [X (Twitter)](https://twitter.com/nxdevtools)
-- [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [YouTube](https://www.youtube.com/@nxdevtools)
-- [Blog](https://nx.dev/blog)
+This monorepo and all projects in it are licensed under the MIT License. See `LICENSE` for details.
