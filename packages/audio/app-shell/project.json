@@ -7,10 +7,5 @@
   "metadata": {
     "license": "MIT"
   },
-  "tags": ["scope:shared", "type:audio-app"],
-  "targets": {
-    "lint": {
-      "executor": "@nx/eslint:lint"
-    }
-  }
+  "tags": ["scope:shared", "type:audio-app"]
 }

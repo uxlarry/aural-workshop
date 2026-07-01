@@ -9,9 +9,6 @@
   },
   "tags": ["scope:shared", "type:audio-ui"],
   "targets": {
-    "lint": {
-      "executor": "@nx/eslint:lint"
-    },
     "storybook": {
       "executor": "@storybook/angular:start-storybook",
       "options": {

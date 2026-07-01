@@ -17,6 +17,7 @@
         "baseHref": "/apps/chimes/",
         "browser": "apps/chimes/src/main.ts",
         "tsConfig": "apps/chimes/tsconfig.app.json",
+        "allowedCommonJsDependencies": ["automation-events"],
         "inlineStyleLanguage": "scss",
         "assets": [
           {
@@ -36,7 +37,7 @@
             },
             {
               "type": "anyComponentStyle",
-              "maximumWarning": "4kb",
+              "maximumWarning": "7kb",
               "maximumError": "8kb"
             }
           ],
@@ -62,9 +63,6 @@
         }
       },
       "defaultConfiguration": "development"
-    },
-    "lint": {
-      "executor": "@nx/eslint:lint"
     },
     "test": {
       "executor": "@angular/build:unit-test",

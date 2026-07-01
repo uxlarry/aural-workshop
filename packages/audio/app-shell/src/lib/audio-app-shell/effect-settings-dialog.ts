@@ -10,7 +10,6 @@ import { MatButtonModule } from '@angular/material/button';
 import {
   MixerEffect,
   MixerEffectParameterName,
-  MixerEffectType,
 } from '@org/audio-model';
 
 export interface EffectParameterUiMeta {
@@ -69,7 +68,8 @@ export interface EffectSettingsDialogData {
         </label>
       </div>
 
-      <div class="field-group" *ngFor="let meta of data.parameterMeta">
+      @for (meta of data.parameterMeta; track meta.parameter) {
+      <div class="field-group">
         <label>
           <span>
             {{ meta.label }}:
@@ -87,6 +87,7 @@ export interface EffectSettingsDialogData {
           />
         </label>
       </div>
+      }
     </mat-dialog-content>
 
     <mat-dialog-actions align="end">

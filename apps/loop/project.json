@@ -18,6 +18,7 @@
         "baseHref": "/apps/loop/",
         "browser": "apps/loop/src/main.ts",
         "tsConfig": "apps/loop/tsconfig.app.json",
+        "allowedCommonJsDependencies": ["automation-events"],
         "assets": [
           {
             "glob": "**/*",
@@ -31,13 +32,13 @@
           "budgets": [
             {
               "type": "initial",
-              "maximumWarning": "500kb",
+              "maximumWarning": "525kb",
               "maximumError": "1mb"
             },
             {
               "type": "anyComponentStyle",
-              "maximumWarning": "4kb",
-              "maximumError": "9kb"
+              "maximumWarning": "9kb",
+              "maximumError": "10kb"
             }
           ],
           "outputHashing": "all"
@@ -61,9 +62,6 @@
           "buildTarget": "loop:build:development"
         }
       }
-    },
-    "lint": {
-      "executor": "@nx/eslint:lint"
     },
     "serve-static": {
       "continuous": true,

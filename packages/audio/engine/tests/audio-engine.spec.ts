@@ -1,4 +1,4 @@
-import { createDefaultMixerEffect } from '../../model/src';
+import { createDefaultMixerEffect } from '@org/audio-model';
 import { resolveActiveEffects, resolveChainEffects } from '../src';
 
 describe('audio-engine effects chain planning', () => {

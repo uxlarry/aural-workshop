@@ -50,7 +50,7 @@
     </section>
     }
 
-    <div class="level-meters" role="meter">
+    <div class="level-meters" role="group" aria-label="Signal level meters">
       <div
         class="level-meter level-meter--left"
         [class.level-meter--clipping]="channel().meter?.clipping || (channel().meter?.leftDb ?? -100) >= 0"

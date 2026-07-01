@@ -47,8 +47,8 @@ export interface EffectCatalogDialogData {
         role="list"
         aria-label="Available effects"
       >
+        @for (effect of effects(); track effect.type) {
         <button
-          *ngFor="let effect of effects()"
           class="effect-catalog-button"
           [class.effect-catalog-button--active]="isActive(effect.type)"
           type="button"
@@ -58,6 +58,7 @@ export interface EffectCatalogDialogData {
         >
           <mat-icon>{{ effect.icon }}</mat-icon>
         </button>
+        }
       </div>
     </mat-dialog-content>
 
