@@ -92,8 +92,23 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+
+          # Normalize key content from secrets (trim CRLF, preserve newlines).
+          printf '%s' "$SSH_KEY" | tr -d '\r' > ~/.ssh/deploy_key
+
+          if ! grep -qE '^-----BEGIN (OPENSSH|RSA|EC|PRIVATE) PRIVATE KEY-----' ~/.ssh/deploy_key; then
+            echo "DEPLOY_SSH_KEY does not look like a raw private key."
+            echo "Store the full private key text (including BEGIN/END lines) in the secret."
+            exit 1
+          fi
+
           chmod 600 ~/.ssh/deploy_key
+
+          if ! ssh-keygen -y -f ~/.ssh/deploy_key >/dev/null 2>&1; then
+            echo "DEPLOY_SSH_KEY is not a readable private key for OpenSSH."
+            echo "Common causes: malformed key, passphrase-protected key, or copied public key instead of private key."
+            exit 1
+          fi
 
           port="${SSH_PORT:-22}"
           echo "Preparing SSH for $SSH_HOST:$port"
@@ -137,7 +152,7 @@ jobs:
           echo "Port: $port"
           echo "Target directory: $TARGET_DIR"
 
-          ssh -i ~/.ssh/deploy_key -p "$port" "$SSH_USER@$SSH_HOST" "mkdir -p '$TARGET_DIR' && echo 'Remote user:' \$(whoami) && echo 'Remote pwd:' \$(pwd) && ls -ld '$TARGET_DIR'"
+          ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o IdentitiesOnly=yes -p "$port" "$SSH_USER@$SSH_HOST" "mkdir -p '$TARGET_DIR' && echo 'Remote user:' \$(whoami) && echo 'Remote pwd:' \$(pwd) && ls -ld '$TARGET_DIR'"
 
       - name: Deploy preview (dry run)
         if: ${{ env.IS_DRY_RUN == 'true' }}
@@ -151,7 +166,7 @@ jobs:
           port="${SSH_PORT:-22}"
           TARGET_DIR="${TARGET_DIR_OVERRIDE:-$SSH_TARGET_DIR}"
           rsync -az --dry-run \
-            -e "ssh -i ~/.ssh/deploy_key -p $port" \
+            -e "ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o IdentitiesOnly=yes -p $port" \
             dist/deploy/ "$SSH_USER@$SSH_HOST:$TARGET_DIR/"
 
       - name: Deploy to host
@@ -166,7 +181,7 @@ jobs:
           port="${SSH_PORT:-22}"
           TARGET_DIR="${TARGET_DIR_OVERRIDE:-$SSH_TARGET_DIR}"
           rsync -az --delete \
-            -e "ssh -i ~/.ssh/deploy_key -p $port" \
+            -e "ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o IdentitiesOnly=yes -p $port" \
             dist/deploy/ "$SSH_USER@$SSH_HOST:$TARGET_DIR/"
 
       - name: Run post-deploy command
@@ -183,4 +198,4 @@ jobs:
           fi
 
           port="${SSH_PORT:-22}"
-          ssh -i ~/.ssh/deploy_key -p "$port" "$SSH_USER@$SSH_HOST" "$DEPLOY_POST_COMMAND"
+          ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o IdentitiesOnly=yes -p "$port" "$SSH_USER@$SSH_HOST" "$DEPLOY_POST_COMMAND"
