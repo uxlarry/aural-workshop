@@ -93,12 +93,19 @@ jobs:
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
 
-          # Normalize key content from secrets (trim CRLF, preserve newlines).
-          printf '%s' "$SSH_KEY" | tr -d '\r' > ~/.ssh/deploy_key
+          # Normalize key content from secrets.
+          # Supports both:
+          # 1) Raw multiline private key text
+          # 2) Single-line text containing literal \n escapes
+          if printf '%s' "$SSH_KEY" | grep -q '\\n'; then
+            printf '%b' "$SSH_KEY" | tr -d '\r' > ~/.ssh/deploy_key
+          else
+            printf '%s' "$SSH_KEY" | tr -d '\r' > ~/.ssh/deploy_key
+          fi
 
           if ! grep -qE '^-----BEGIN (OPENSSH|RSA|EC|PRIVATE) PRIVATE KEY-----' ~/.ssh/deploy_key; then
             echo "DEPLOY_SSH_KEY does not look like a raw private key."
-            echo "Store the full private key text (including BEGIN/END lines) in the secret."
+            echo "Store the full private key text (including BEGIN/END lines), or a string with literal \\n line breaks."
             exit 1
           fi
 
@@ -106,7 +113,7 @@ jobs:
 
           if ! ssh-keygen -y -f ~/.ssh/deploy_key >/dev/null 2>&1; then
             echo "DEPLOY_SSH_KEY is not a readable private key for OpenSSH."
-            echo "Common causes: malformed key, passphrase-protected key, or copied public key instead of private key."
+            echo "Common causes: malformed key, passphrase-protected key, copied public key instead of private key, or line-break corruption in the secret."
             exit 1
           fi
 
