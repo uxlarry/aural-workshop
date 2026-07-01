@@ -110,6 +110,9 @@ jobs:
             exit 1
           fi
 
+          echo "Derived public key fingerprint from DEPLOY_SSH_KEY:"
+          ssh-keygen -y -f ~/.ssh/deploy_key | ssh-keygen -lf -
+
           port="${SSH_PORT:-22}"
           echo "Preparing SSH for $SSH_HOST:$port"
 
