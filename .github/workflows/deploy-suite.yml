@@ -148,12 +148,17 @@ jobs:
             dist/deploy/ "$SSH_USER@$SSH_HOST:$TARGET_DIR/"
 
       - name: Run post-deploy command
-        if: ${{ env.IS_DRY_RUN != 'true' && secrets.DEPLOY_POST_COMMAND != '' }}
+        if: ${{ env.IS_DRY_RUN != 'true' }}
         env:
           SSH_HOST: ${{ secrets.DEPLOY_SSH_HOST }}
           SSH_USER: ${{ secrets.DEPLOY_SSH_USER }}
           SSH_PORT: ${{ secrets.DEPLOY_SSH_PORT }}
           DEPLOY_POST_COMMAND: ${{ secrets.DEPLOY_POST_COMMAND }}
         run: |
+          if [ -z "$DEPLOY_POST_COMMAND" ]; then
+            echo "No DEPLOY_POST_COMMAND provided; skipping post-deploy command."
+            exit 0
+          fi
+
           port="${SSH_PORT:-22}"
           ssh -i ~/.ssh/deploy_key -p "$port" "$SSH_USER@$SSH_HOST" "$DEPLOY_POST_COMMAND"
