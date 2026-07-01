@@ -1,0 +1,159 @@
+name: Deploy Suite
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Run preflight checks and a non-destructive rsync preview
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+      target_dir_override:
+        description: Optional remote target directory override for this run
+        required: false
+        default: ''
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-suite-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      IS_DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run == 'true' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and package suite
+        run: npm exec nx run aural-workshop-site:package-suite
+
+      - name: Upload deploy artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-suite
+          path: dist/deploy
+          if-no-files-found: error
+
+      - name: Validate deploy secrets
+        env:
+          SSH_HOST: ${{ secrets.DEPLOY_SSH_HOST }}
+          SSH_USER: ${{ secrets.DEPLOY_SSH_USER }}
+          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          SSH_TARGET_DIR: ${{ secrets.DEPLOY_TARGET_DIR }}
+          TARGET_DIR_OVERRIDE: ${{ github.event_name == 'workflow_dispatch' && inputs.target_dir_override || '' }}
+        run: |
+          TARGET_DIR="${TARGET_DIR_OVERRIDE:-$SSH_TARGET_DIR}"
+          missing=0
+          for var in SSH_HOST SSH_USER SSH_KEY; do
+            if [ -z "${!var}" ]; then
+              echo "Missing required secret for deployment: $var"
+              missing=1
+            fi
+          done
+
+          if [ -z "$TARGET_DIR" ]; then
+            echo "Missing required deployment target directory. Set DEPLOY_TARGET_DIR or provide workflow input target_dir_override."
+            missing=1
+          fi
+
+          if [ "$missing" -eq 1 ]; then
+            echo "Required secrets: DEPLOY_SSH_HOST, DEPLOY_SSH_USER, DEPLOY_SSH_KEY"
+            echo "Target directory: DEPLOY_TARGET_DIR secret or target_dir_override workflow input"
+            exit 1
+          fi
+
+      - name: Configure SSH
+        env:
+          SSH_HOST: ${{ secrets.DEPLOY_SSH_HOST }}
+          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          SSH_PORT: ${{ secrets.DEPLOY_SSH_PORT }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+          port="${SSH_PORT:-22}"
+          ssh-keyscan -p "$port" "$SSH_HOST" >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Preflight SSH checks
+        env:
+          SSH_HOST: ${{ secrets.DEPLOY_SSH_HOST }}
+          SSH_USER: ${{ secrets.DEPLOY_SSH_USER }}
+          SSH_PORT: ${{ secrets.DEPLOY_SSH_PORT }}
+          SSH_TARGET_DIR: ${{ secrets.DEPLOY_TARGET_DIR }}
+          TARGET_DIR_OVERRIDE: ${{ github.event_name == 'workflow_dispatch' && inputs.target_dir_override || '' }}
+          IS_DRY_RUN: ${{ env.IS_DRY_RUN }}
+        run: |
+          port="${SSH_PORT:-22}"
+          TARGET_DIR="${TARGET_DIR_OVERRIDE:-$SSH_TARGET_DIR}"
+          echo "Dry run: $IS_DRY_RUN"
+          echo "Host: $SSH_HOST"
+          echo "Port: $port"
+          echo "Target directory: $TARGET_DIR"
+
+          ssh -i ~/.ssh/deploy_key -p "$port" "$SSH_USER@$SSH_HOST" "mkdir -p '$TARGET_DIR' && echo 'Remote user:' \$(whoami) && echo 'Remote pwd:' \$(pwd) && ls -ld '$TARGET_DIR'"
+
+      - name: Deploy preview (dry run)
+        if: ${{ env.IS_DRY_RUN == 'true' }}
+        env:
+          SSH_HOST: ${{ secrets.DEPLOY_SSH_HOST }}
+          SSH_USER: ${{ secrets.DEPLOY_SSH_USER }}
+          SSH_PORT: ${{ secrets.DEPLOY_SSH_PORT }}
+          SSH_TARGET_DIR: ${{ secrets.DEPLOY_TARGET_DIR }}
+          TARGET_DIR_OVERRIDE: ${{ github.event_name == 'workflow_dispatch' && inputs.target_dir_override || '' }}
+        run: |
+          port="${SSH_PORT:-22}"
+          TARGET_DIR="${TARGET_DIR_OVERRIDE:-$SSH_TARGET_DIR}"
+          rsync -az --dry-run \
+            -e "ssh -i ~/.ssh/deploy_key -p $port" \
+            dist/deploy/ "$SSH_USER@$SSH_HOST:$TARGET_DIR/"
+
+      - name: Deploy to host
+        if: ${{ env.IS_DRY_RUN != 'true' }}
+        env:
+          SSH_HOST: ${{ secrets.DEPLOY_SSH_HOST }}
+          SSH_USER: ${{ secrets.DEPLOY_SSH_USER }}
+          SSH_PORT: ${{ secrets.DEPLOY_SSH_PORT }}
+          SSH_TARGET_DIR: ${{ secrets.DEPLOY_TARGET_DIR }}
+          TARGET_DIR_OVERRIDE: ${{ github.event_name == 'workflow_dispatch' && inputs.target_dir_override || '' }}
+        run: |
+          port="${SSH_PORT:-22}"
+          TARGET_DIR="${TARGET_DIR_OVERRIDE:-$SSH_TARGET_DIR}"
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/deploy_key -p $port" \
+            dist/deploy/ "$SSH_USER@$SSH_HOST:$TARGET_DIR/"
+
+      - name: Run post-deploy command
+        if: ${{ env.IS_DRY_RUN != 'true' && secrets.DEPLOY_POST_COMMAND != '' }}
+        env:
+          SSH_HOST: ${{ secrets.DEPLOY_SSH_HOST }}
+          SSH_USER: ${{ secrets.DEPLOY_SSH_USER }}
+          SSH_PORT: ${{ secrets.DEPLOY_SSH_PORT }}
+          DEPLOY_POST_COMMAND: ${{ secrets.DEPLOY_POST_COMMAND }}
+        run: |
+          port="${SSH_PORT:-22}"
+          ssh -i ~/.ssh/deploy_key -p "$port" "$SSH_USER@$SSH_HOST" "$DEPLOY_POST_COMMAND"
