@@ -96,7 +96,29 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
 
           port="${SSH_PORT:-22}"
-          ssh-keyscan -p "$port" "$SSH_HOST" >> ~/.ssh/known_hosts
+          echo "Preparing SSH for $SSH_HOST:$port"
+
+          if ! getent ahosts "$SSH_HOST" >/dev/null; then
+            echo "Unable to resolve SSH host: $SSH_HOST"
+            exit 1
+          fi
+
+          if ! timeout 10 bash -c "</dev/tcp/$SSH_HOST/$port" 2>/dev/null; then
+            echo "Unable to reach $SSH_HOST on port $port"
+            echo "Check DEPLOY_SSH_HOST, DEPLOY_SSH_PORT, firewall rules, and whether your host accepts SSH from GitHub runners."
+            exit 1
+          fi
+
+          if ! ssh-keyscan -T 10 -H -p "$port" "$SSH_HOST" > ~/.ssh/known_hosts; then
+            echo "ssh-keyscan failed for $SSH_HOST:$port"
+            exit 1
+          fi
+
+          if [ ! -s ~/.ssh/known_hosts ]; then
+            echo "ssh-keyscan returned no host keys for $SSH_HOST:$port"
+            exit 1
+          fi
+
           chmod 644 ~/.ssh/known_hosts
 
       - name: Preflight SSH checks
